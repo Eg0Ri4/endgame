@@ -1,13 +1,18 @@
-CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic -Iinc
-FILE_NAME= way_home
+CC = clang
+CFLAGS = -Wall -Wextra -Iinc
+LDFLAGS = -lSDL2
 
-all: $(FILE_NAME)
+SRC = src/main.c
+OBJ = $(SRC:.c=.o)
+EXEC = endgame
 
-$(FILE_NAME):
-	clang $(CFLAGS) src/*.c -o $(FILE_NAME)
+all: $(EXEC)
+
+$(EXEC): $(OBJ)
+	$(CC) $(OBJ) -o $(EXEC) $(LDFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(FILE_NAME)
-	rm -f path.txt
-
-re: clean all
+	rm -f $(OBJ) $(EXEC)
