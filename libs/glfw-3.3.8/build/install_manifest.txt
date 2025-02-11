@@ -1,0 +1,8 @@
+/home/sse/endgame/libs/lib/libglfw3.a
+/home/sse/endgame/libs/include/GLFW/glfw3.h
+/home/sse/endgame/libs/include/GLFW/glfw3native.h
+/home/sse/endgame/libs/lib/cmake/glfw3/glfw3Config.cmake
+/home/sse/endgame/libs/lib/cmake/glfw3/glfw3ConfigVersion.cmake
+/home/sse/endgame/libs/lib/cmake/glfw3/glfw3Targets.cmake
+/home/sse/endgame/libs/lib/cmake/glfw3/glfw3Targets-noconfig.cmake
+/home/sse/endgame/libs/lib/pkgconfig/glfw3.pc
