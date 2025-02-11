@@ -1,6 +1,6 @@
-CFLAGS := -std=c11 -Wall -Wextra -Werror -pedantic -g -Iinc/raylib/include
-LDFLAGS := -Linc/raylib/lib -Wl,-rpath,inc/raylib/lib
-LIBS := -lraylib -lm -lpthread -ldl -lrt -lGLEW -lglfw -lGLU -lGL
+CFLAGS := -std=c11 -Wall -Wextra -Werror -pedantic -g -Iinc/raylib/include -Ilib/include
+LDFLAGS := -Linc/raylib/lib -Llib -Wl,-rpath,inc/raylib/lib -Wl,-rpath,lib
+LIBS := -lraylib -lglfw -lm -lpthread -ldl -lrt -lGL -lGLEW -lGLU
 SRC := src/*.c
 NAME := endgame
 
@@ -13,4 +13,3 @@ clean:
 	rm -f $(NAME)
 
 re: clean all
-
