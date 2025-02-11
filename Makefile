@@ -1,6 +1,6 @@
 CFLAGS := -std=c11 -Wall -Wextra -Werror -pedantic -g -Iinc/raylib/include -Ilib/include
 LDFLAGS := -Linc/raylib/lib -Llib -Wl,-rpath,inc/raylib/lib -Wl,-rpath,lib
-LIBS := -lraylib -lglfw -lm -lpthread -ldl -lrt -lGL -lGLEW -lGLU
+LIBS := -lraylib -lm -lpthread -ldl -lrt -lGL -lGLEW -lGLU
 SRC := src/*.c
 NAME := endgame
 
