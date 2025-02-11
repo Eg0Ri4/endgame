@@ -1,18 +1,15 @@
-CC = clang
-CFLAGS = -Wall -Wextra -Iinc
-LDFLAGS = -lSDL2
+CFLAGS :=  -Ilibs/include
+LDFLAGS := -Llibs/lib -Wl,-rpath,libs/lib
+LIBS := -lGLEW -lglfw -lGLU -lGL
+SRC := src/*.c
+NAME := endgame
 
-SRC = src/main.c
-OBJ = $(SRC:.c=.o)
-EXEC = endgame
+all: $(NAME)
 
-all: $(EXEC)
-
-$(EXEC): $(OBJ)
-	$(CC) $(OBJ) -o $(EXEC) $(LDFLAGS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(NAME):
+	clang $(CFLAGS) $(SRC) -o $(NAME) $(LDFLAGS) $(LIBS)
 
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -f $(NAME)
+
+re: clean all
