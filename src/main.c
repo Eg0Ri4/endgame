@@ -22,14 +22,14 @@ int is_wall(int x, int y) {
 }
 
 void InitWalls(int screenWidth) {
-    int startX = screenWidth - GRID_SIZE * 5;  // Начало стены справа
-    int startY = GRID_SIZE * 5;  // Высота стены
+    int startX = screenWidth - GRID_SIZE * WALL_X_poz;  // Начало стены справа
+    int startY = 0;  // Высота стены
 
     for (int i = 0; i < WALL_COUNT; i++) {
         walls[i].x = startX;
         walls[i].y = startY + i * GRID_SIZE;
-        walls[i].width = GRID_SIZE;
-        walls[i].height = GRID_SIZE;
+        walls[i].width = GRID_SIZE * 2;
+        walls[i].height = GRID_SIZE * 300;
     }
 }
 
