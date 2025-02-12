@@ -1,61 +1,101 @@
 #include "includs.h"
 
-int main(void){
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-    int b_count = 0;
+#include <stdlib.h>
 
-    InitWindow(screenWidth, screenHeight, "raylib");
+Rectangle walls[WALL_COUNT];  // Стена
+
+void DrawGridLines(int screenWidth, int screenHeight) {
+    for (int x = 0; x < screenWidth; x += GRID_SIZE)
+        DrawLine(x, 0, x, screenHeight, LIGHTGRAY);
+    
+    for (int y = 0; y < screenHeight; y += GRID_SIZE)
+        DrawLine(0, y, screenWidth, y, LIGHTGRAY);
+}
+
+// Проверка, является ли клетка стеной
+int is_wall(int x, int y) {
+    for (int i = 0; i < WALL_COUNT; i++) {
+        if (walls[i].x == x && walls[i].y == y)
+            return 1;  // Это стена
+    }
+    return 0;  // Это проход
+}
+
+void InitWalls(int screenWidth) {
+    int startX = screenWidth - GRID_SIZE * 5;  // Начало стены справа
+    int startY = GRID_SIZE * 5;  // Высота стены
+
+    for (int i = 0; i < WALL_COUNT; i++) {
+        walls[i].x = startX;
+        walls[i].y = startY + i * GRID_SIZE;
+        walls[i].width = GRID_SIZE;
+        walls[i].height = GRID_SIZE;
+    }
+}
+
+int main(void) {
+    const int screenWidth = 1280;
+    const int screenHeight = 720;
+
+    InitWindow(screenWidth, screenHeight, "raylib - Walls");
+
+    InitWalls(screenWidth);  // Создаем стену
 
     Vector2 cursorPos = { -100.0f, -100.0f };
     int isCursorHidden = 0;
-    Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
+    Texture2D Cursor_texture = LoadTexture("resources/images/cursor.png");
 
-    Vector2 b_pos = {200, 150};  
-    Vector2 size = {GRID_SIZE*3, GRID_SIZE*3 };
+    int blockCount = 0;
+    Rectangle *blocks = NULL;
 
-    Vector2 *points = (Vector2*)malloc(b_count * sizeof(Vector2));
+    SetTargetFPS(60);
 
-    SetTargetFPS(60);               
-
-    while (!WindowShouldClose())
-    {
-        if (isCursorHidden == 0){
-                HideCursor();
-                isCursorHidden = 1;
+    while (!WindowShouldClose()) {
+        if (!isCursorHidden) {
+            HideCursor();
+            isCursorHidden = 1;
         }
+
         cursorPos = GetMousePosition();
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            b_pos.x = cursorPos.x - (int)cursorPos.x%GRID_SIZE;
-            b_pos.y = cursorPos.y - (int)cursorPos.y%GRID_SIZE;
-            
-            ++b_count;
-            points = realloc(points, b_count * sizeof(Vector2));  
-            points[b_count - 1] = b_pos; 
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            int gridX = (int)cursorPos.x - ((int)cursorPos.x % GRID_SIZE);
+            int gridY = (int)cursorPos.y - ((int)cursorPos.y % GRID_SIZE);
+
+            // Проверяем, можно ли разместить блок (не стена)
+            if (!is_wall(gridX, gridY)) {
+                blockCount++;
+                blocks = realloc(blocks, blockCount * sizeof(Rectangle));
+                blocks[blockCount - 1] = (Rectangle){ gridX, gridY, GRID_SIZE, GRID_SIZE };
+            }
         }
 
         BeginDrawing();
-            ClearBackground(RAYWHITE); 
-            for (int x = 0; x < screenWidth; x += GRID_SIZE){
-            DrawLine(x, 0, x, screenHeight, LIGHTGRAY);
-            }
-            for (int y = 0; y < screenHeight; y += GRID_SIZE)
-            {
-            DrawLine(0, y, screenWidth, y, LIGHTGRAY);
-            }
+            ClearBackground(RAYWHITE);
+            DrawGridLines(screenWidth, screenHeight);
+
+            // Рисуем стены (они непроходимые)
+            for (int i = 0; i < WALL_COUNT; i++)
+                DrawRectangleRec(walls[i], DARKGRAY);
+
+            // Рисуем размещенные блоки (проходимые)
+            for (int i = 0; i < blockCount; i++)
+                DrawRectangleRec(blocks[i], BLUE);
+
+            // Отображаем красный блок на курсоре
+            int gridX = (int)cursorPos.x - ((int)cursorPos.x % GRID_SIZE);
+            int gridY = (int)cursorPos.y - ((int)cursorPos.y % GRID_SIZE);
             
-            for (int i = 0; i< b_count; ++i){
-                DrawRectangleV(points[i], size, BLUE);
-                
-            }
-            DrawRectangleV(b_pos, size, RED);
+            if (!is_wall(gridX, gridY))
+                DrawRectangle(gridX, gridY, GRID_SIZE, GRID_SIZE, RED);
 
             DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
         EndDrawing();
     }
-    CloseWindow();        
 
-    free(points);
+    UnloadTexture(Cursor_texture);
+    free(blocks);
+    CloseWindow();
+
     return 0;
 }
-

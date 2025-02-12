@@ -6,8 +6,10 @@ NAME := endgame
 
 all: $(NAME)
 
-$(NAME):
+$(NAME): force
 	clang $(CFLAGS) $(SRC) -o $(NAME) $(LDFLAGS) $(LIBS)
+
+force: ;
 
 clean:
 	rm -f $(NAME)
