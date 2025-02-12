@@ -7,7 +7,7 @@
 #include <math.h>
 #include "prototypes.h"
 
-#define GRID_SIZE 200
+#define GRID_SIZE 60
 #define CELL_SIZE 1.0f
 #define WALL_COUNT 40
 #define WALL_X_poz 30
