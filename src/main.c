@@ -28,7 +28,7 @@ void InitWalls(int screenWidth) {
     for (int i = 0; i < WALL_COUNT; i++) {
         walls[i].x = startX;
         walls[i].y = startY + i * GRID_SIZE;
-        walls[i].width = GRID_SIZE * 2;
+        walls[i].width = GRID_SIZE * WALL_weight;
         walls[i].height = GRID_SIZE * 300;
     }
 }
@@ -62,12 +62,9 @@ int main(void) {
             int gridX = (int)cursorPos.x - ((int)cursorPos.x % GRID_SIZE);
             int gridY = (int)cursorPos.y - ((int)cursorPos.y % GRID_SIZE);
 
-            // Проверяем, можно ли разместить блок (не стена)
-            if (!is_wall(gridX, gridY)) {
-                blockCount++;
-                blocks = realloc(blocks, blockCount * sizeof(Rectangle));
-                blocks[blockCount - 1] = (Rectangle){ gridX, gridY, GRID_SIZE, GRID_SIZE };
-            }
+            blockCount++;
+            blocks = realloc(blocks, blockCount * sizeof(Rectangle));
+            blocks[blockCount - 1] = (Rectangle){ gridX, gridY, GRID_SIZE, GRID_SIZE };
         }
 
         BeginDrawing();
