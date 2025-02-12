@@ -1,7 +1,10 @@
 #include <stdio.h>
+<<<<<<< HEAD
 #include <stdlib.h>
 #include "raylib.h"
 #define GRID_SIZE 10
+=======
+>>>>>>> 169d6df664efeff47efd87e4b96735ebae9a63b8
 
 Vector2* delete_element(Vector2* array, int* size, int index) {
     if (*size == 0 || index >= *size) return array; 
