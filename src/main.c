@@ -1,21 +1,4 @@
-#include <stdio.h>
-<<<<<<< HEAD
-#include <stdlib.h>
-#include "raylib.h"
-#define GRID_SIZE 10
-=======
->>>>>>> 169d6df664efeff47efd87e4b96735ebae9a63b8
-
-Vector2* delete_element(Vector2* array, int* size, int index) {
-    if (*size == 0 || index >= *size) return array; 
-    for (int i = index; i < *size - 1; i++) {
-        array[i] = array[i + 1]; 
-    }
-    *size -= 1;
-    array = realloc(array, *size * sizeof(Vector2));
-
-    return array;
-}
+#include "includs.h"
 
 int main(void){
     const int screenWidth = 800;
@@ -26,12 +9,10 @@ int main(void){
 
     Vector2 cursorPos = { -100.0f, -100.0f };
     int isCursorHidden = 0;
-    Image image = LoadImage("resources/images/cursor.png");
-    Texture2D Cursor_texture = LoadTextureFromImage(image);
-    UnloadImage(image); 
+    Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
 
     Vector2 b_pos = {200, 150};  
-    Vector2 size = {GRID_SIZE*2, GRID_SIZE*2 };
+    Vector2 size = {GRID_SIZE*3, GRID_SIZE*3 };
 
     Vector2 *points = (Vector2*)malloc(b_count * sizeof(Vector2));
 
