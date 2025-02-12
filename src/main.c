@@ -1,98 +1,77 @@
 #include "includs.h"
+#include "raylib.h"
 
-#include <stdlib.h>
 
-Rectangle walls[WALL_COUNT];  // Стена
+bool GetGridCellFromRay(Ray ray, int *cellX, int *cellZ) {
+    if (ray.direction.y == 0.0f) return false;
 
-void DrawGridLines(int screenWidth, int screenHeight) {
-    for (int x = 0; x < screenWidth; x += GRID_SIZE)
-        DrawLine(x, 0, x, screenHeight, LIGHTGRAY);
-    
-    for (int y = 0; y < screenHeight; y += GRID_SIZE)
-        DrawLine(0, y, screenWidth, y, LIGHTGRAY);
-}
+    float t = -ray.position.y / ray.direction.y; 
+    if (t < 0.0f) return false;
 
-// Проверка, является ли клетка стеной
-int is_wall(int x, int y) {
-    for (int i = 0; i < WALL_COUNT; i++) {
-        if (walls[i].x == x && walls[i].y == y)
-            return 1;  // Это стена
-    }
-    return 0;  // Это проход
-}
+    Vector3 hit = {
+        ray.position.x + t * ray.direction.x,
+        0.0f,
+        ray.position.z + t * ray.direction.z
+    };
 
-void InitWalls(int screenWidth) {
-    int startX = screenWidth - GRID_SIZE * WALL_X_poz;  // Начало стены справа
-    int startY = 0;  // Высота стены
+   
+    *cellX = (int)(hit.x / CELL_SIZE + GRID_SIZE / 2);
+    *cellZ = (int)(hit.z / CELL_SIZE + GRID_SIZE / 2);
 
-    for (int i = 0; i < WALL_COUNT; i++) {
-        walls[i].x = startX;
-        walls[i].y = startY + i * GRID_SIZE;
-        walls[i].width = GRID_SIZE * WALL_weight;
-        walls[i].height = GRID_SIZE * 300;
-    }
+    if (*cellX < 0 || *cellX >= GRID_SIZE || *cellZ < 0 || *cellZ >= GRID_SIZE)
+        return false; 
+
+    return true;
 }
 
 int main(void) {
-    const int screenWidth = 1280;
-    const int screenHeight = 720;
+    const int screenWidth = 1920, screenHeight = 1080;
+    InitWindow(screenWidth, screenHeight, "Click on Grid Cells!");
 
-    InitWindow(screenWidth, screenHeight, "raylib - Walls");
+    Camera3D camera = { 0 };
+    camera.position = (Vector3){ 7.0f, 15.0f, 10.0f }; // Высокий угол
+    camera.target = (Vector3){ 10.0f, 0.0f, 0.0f }; // Центр сцены
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; 
+    camera.fovy = 65.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
+    
+    SetTargetFPS(60);
 
-    InitWalls(screenWidth);  // Создаем стену
-
-    Vector2 cursorPos = { -100.0f, -100.0f };
-    int isCursorHidden = 0;
-    Texture2D Cursor_texture = LoadTexture("resources/images/cursor.png");
-
-    int blockCount = 0;
-    Rectangle *blocks = NULL;
+    Color gridColors[GRID_SIZE][GRID_SIZE] = { 0 }; // Масив кольорів сітки
 
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
-        if (!isCursorHidden) {
-            HideCursor();
-            isCursorHidden = 1;
-        }
-
-        cursorPos = GetMousePosition();
-
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            int gridX = (int)cursorPos.x - ((int)cursorPos.x % GRID_SIZE);
-            int gridY = (int)cursorPos.y - ((int)cursorPos.y % GRID_SIZE);
+            Ray ray = GetScreenToWorldRay(GetMousePosition(), camera);
+            int cellX, cellZ;
 
-            blockCount++;
-            blocks = realloc(blocks, blockCount * sizeof(Rectangle));
-            blocks[blockCount - 1] = (Rectangle){ gridX, gridY, GRID_SIZE, GRID_SIZE };
+            if (GetGridCellFromRay(ray, &cellX, &cellZ)) {
+                
+                gridColors[cellX][cellZ] = (gridColors[cellX][cellZ].r == 255) ? WHITE : RED;
+            }
         }
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawGridLines(screenWidth, screenHeight);
+            BeginMode3D(camera);
 
-            // Рисуем стены (они непроходимые)
-            for (int i = 0; i < WALL_COUNT; i++)
-                DrawRectangleRec(walls[i], DARKGRAY);
-
-            // Рисуем размещенные блоки (проходимые)
-            for (int i = 0; i < blockCount; i++)
-                DrawRectangleRec(blocks[i], BLUE);
-
-            // Отображаем красный блок на курсоре
-            int gridX = (int)cursorPos.x - ((int)cursorPos.x % GRID_SIZE);
-            int gridY = (int)cursorPos.y - ((int)cursorPos.y % GRID_SIZE);
             
-            if (!is_wall(gridX, gridY))
-                DrawRectangle(gridX, gridY, GRID_SIZE, GRID_SIZE, RED);
+            for (int x = 0; x < GRID_SIZE; x++) {
+                for (int z = 0; z < GRID_SIZE; z++) {
+                    Vector3 position = { (x - GRID_SIZE / 2) * CELL_SIZE + CELL_SIZE / 2, 0.0f, 
+                                         (z - GRID_SIZE / 2) * CELL_SIZE + CELL_SIZE / 2 };
+                    DrawCube(position, CELL_SIZE, 0.01f, CELL_SIZE, gridColors[x][z].r ? gridColors[x][z] : WHITE);
+                    DrawCubeWires(position, CELL_SIZE, 0.01f, CELL_SIZE, DARKGRAY);
+                }
+            }
 
-            DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
+            EndMode3D();
+            DrawText("Click on grid cells to change color!", 20, 20, 20, DARKGRAY);
+            DrawFPS(10, 10);
         EndDrawing();
     }
 
-    UnloadTexture(Cursor_texture);
-    free(blocks);
     CloseWindow();
-
     return 0;
 }
