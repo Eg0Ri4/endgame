@@ -1,6 +1,4 @@
 #include "includs.h"
-#include "raylib.h"
-
 
 bool GetGridCellFromRay(Ray ray, int *cellX, int *cellZ) {
     if (ray.direction.y == 0.0f) return false;
@@ -34,16 +32,21 @@ int main(void) {
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; 
     camera.fovy = 65.0f;
     camera.projection = CAMERA_PERSPECTIVE;
-    
-    SetTargetFPS(60);
 
     Color gridColors[GRID_SIZE][GRID_SIZE] = { 0 }; // Масив кольорів сітки
+
+    Vector2 cursorPos = { -100.0f, -100.0f };
+    Texture2D Cursor_texture = load_texture("resources/images/cursor.png"); 
 
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
+
+        HideCursor();
+        cursorPos = GetMousePosition();
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            Ray ray = GetScreenToWorldRay(GetMousePosition(), camera);
+            Ray ray = GetScreenToWorldRay(cursorPos, camera);
             int cellX, cellZ;
 
             if (GetGridCellFromRay(ray, &cellX, &cellZ)) {
@@ -67,8 +70,11 @@ int main(void) {
             }
 
             EndMode3D();
-            DrawText("Click on grid cells to change color!", 20, 20, 20, DARKGRAY);
-            DrawFPS(10, 10);
+            //DrawText("Click on grid cells to change color!", 20, 20, 20, DARKGRAY);
+            
+            //inteface
+            draw_info(0,0,0,0);
+            DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
         EndDrawing();
     }
 
