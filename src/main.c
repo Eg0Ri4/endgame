@@ -12,7 +12,7 @@ int main(void) {
     camera.projection = CAMERA_PERSPECTIVE;
 
     // Load the castle model
-    Model bgModel = LoadModel("resources/models/33d.glb");
+    Model bgModel = LoadModel("resources/models/3D-G.glb");
     Color gridColors[GRID_SIZE][GRID_SIZE] = { 0 }; // Массив цветов сетки
 
 
