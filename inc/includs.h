@@ -9,6 +9,8 @@
 #include <shop.h>
 #include <global.h>
 // screen size
+#include "npc.h"
+
 #define GRID_SIZE 20
 #define CELL_SIZE 1.0f
 
@@ -19,4 +21,4 @@
 #define WALL_HEIGHT 4.0f  
 #define WALL_WIDTH 50.0f
 
-
+void wawes(float *spawnTimer, float spawnInterval);
