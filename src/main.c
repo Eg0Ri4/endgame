@@ -1,7 +1,7 @@
 #include "includs.h"
 
 int main(void) {
-    const int screenWidth = 1920, screenHeight = 1080;
+    const int screenWidth = 1280, screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Static Wall on Grid");
 
     Camera3D camera = { 0 };
@@ -12,7 +12,7 @@ int main(void) {
     camera.projection = CAMERA_PERSPECTIVE;
 
     // Load the castle model
-    Model bgModel = LoadModel("resources/models/3D-G.glb");
+    Model bgModel = LoadModel("resources/models/33d.glb");
     Color gridColors[GRID_SIZE][GRID_SIZE] = { 0 }; // Массив цветов сетки
 
 
@@ -22,7 +22,7 @@ int main(void) {
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
-
+    ToggleShop();
         HideCursor();
         cursorPos = GetMousePosition();
         int cellX, cellZ;
@@ -43,6 +43,7 @@ int main(void) {
             DrawFPS(20, 20);
         EndMode3D();
 
+        DrawShopUI();
         // Cursor rendering
         DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
         EndDrawing();
