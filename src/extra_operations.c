@@ -132,4 +132,53 @@ void GameOverScreen(void)
     
     UnloadTexture(background);
     CloseWindow();
+} 
+#define FRAME_COUNT 7
+
+void PlayAnimationGame()
+{
+   
+    const int screenWidth = 800;
+    const int screenHeight = 450;
+    InitWindow(screenWidth, screenHeight, "Sprite Animation Function");
+
+   
+    Texture2D knight = LoadTexture("resources/images/Run.png");  // Заміни на свою текстуру
+
+    
+    Vector2 position = { screenWidth / 2 - (knight.width / FRAME_COUNT) / 2, 
+                         screenHeight / 2 - knight.height / 2 };
+    Rectangle frameRec = { 0.0f, 0.0f, (float)knight.width / FRAME_COUNT, (float)knight.height };
+
+    int currentFrame = 0;
+    int framesCounter = 0;
+    int framesSpeed = 15;  
+
+    SetTargetFPS(60);
+
+    
+    while (!WindowShouldClose())
+    {
+       
+        framesCounter++;
+        if (framesCounter >= (60 / framesSpeed))
+        {
+            framesCounter = 0;
+            currentFrame++;
+
+            if (currentFrame >= FRAME_COUNT) currentFrame = 0;
+
+            frameRec.x = (float)currentFrame * frameRec.width;
+        }
+
+       
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        DrawTextureRec(knight, frameRec, position, WHITE);
+        EndDrawing();
+    }
+
+ 
+    UnloadTexture(knight);
+    CloseWindow();
 }
