@@ -1,7 +1,7 @@
 #include "includs.h"
 
 int main(void) {
-    const int screenWidth = 1920, screenHeight = 1080;
+    const int screenWidth = 1280, screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Static Wall on Grid");
 
     Camera3D camera = { 0 };
