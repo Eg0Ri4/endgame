@@ -30,7 +30,7 @@ void LoadNPCModel(void) {
 
 void UpdateNPC(NPC *npc, float deltaTime) {
     Vector3 nextPos = npc->position;
-    nextPos.z -= 4.0f * deltaTime;
+    nextPos.z -= WALK_SPEED * deltaTime;
 
     if (wall.health <= 0) {
         wallDestroyed = 0;  // Если здоровье стены <= 0, она считается разрушенной
@@ -41,7 +41,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
         return;
     }
     if (wallDestroyed == 1 && CheckCollisionWithWall((Vector3){ nextPos.x, nextPos.y, nextPos.z }, 0.5f)) {
-        nextPos.z += 4.0f * deltaTime; // Откат назад, если стена цела
+        nextPos.z += WALK_SPEED * deltaTime; // Откат назад, если стена цела
 
         if ((rand() % 100) < 5) {  
             nextPos.z += 100.0f * deltaTime;  // Откидываем еще на 1 фрейм

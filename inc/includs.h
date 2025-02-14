@@ -25,6 +25,8 @@
 
 #define wallX1 4
 #define wallZ 28
+#define WALK_SPEED 8.0f
+#define SHOOT_SPEED 8.0f
 
 void wawes(float *spawnTimer, float spawnInterval);
 //void drawWall(void);
