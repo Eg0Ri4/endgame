@@ -8,8 +8,10 @@
 #include "prototypes.h"
 #include <shop.h>
 #include <global.h>
+#include "light.h"
 // screen size
 #include "npc.h"
+#include "tower.h"
 
 #define GRID_SIZE 20
 #define CELL_SIZE 1.0f
@@ -40,7 +42,6 @@ typedef struct {
 // Теперь можно использовать extern для переменной wall
 extern Wall wall;
 extern int wallDestroyed;
-
 
 
 

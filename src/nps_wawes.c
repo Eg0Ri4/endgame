@@ -7,22 +7,15 @@ void wawes(float *spawnTimer, float spawnInterval){
     // Проверка, пришло ли время спавна новой волны
     if (*spawnTimer >= spawnInterval) {
         int spawned = 0;
-        while (spawned < NPC_count && npcCount < MAX_NPC) {
+        while ((npcCount + NPC_count) < MAX_NPC && spawned < NPC_count) {
             SpawnRandomNPC();
             spawned++;
+            printf("%d\n",npcCount);
         }
         *spawnTimer = 0.0f;  // Сброс таймера после спавна
     }
     // Обновление всех NPC
-    int activeNPCs = 0;
     for (int i = 0; i < npcCount; i++) {
         UpdateNPC(&npcs[i], deltaTime);
-        if (npcs[i].state != IDLE) {
-            activeNPCs++;  // Подсчет живых NPC
-        }
-    }
-    // Если все NPC исчезли, сбрасываем счетчик
-    if (activeNPCs == 0) {
-        npcCount = 0;
     }
 }
