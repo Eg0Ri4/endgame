@@ -32,7 +32,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
     Vector3 nextPos = npc->position;
     nextPos.z -= WALK_SPEED * deltaTime;
 
-    if (wall.health <= 0) {
+    if (*wall.health <= 0) {
         wallDestroyed = 0;  // Если здоровье стены <= 0, она считается разрушенной
     }
     npc->disappearTimer -= deltaTime;
@@ -49,9 +49,9 @@ void UpdateNPC(NPC *npc, float deltaTime) {
 
         npc->attackTimer -= deltaTime;
         if (npc->attackTimer <= 0.0f) {
-            wall.health -= npc->damage;
+            *wall.health -= npc->damage;
             npc->attackTimer = NPC_ATTACK_INTERVAL;
-            printf("NPC ударил стену! Стена получила %d урона, здоровье стены: %d\n", npc->damage, wall.health);
+            printf("NPC ударил стену! Стена получила %d урона, здоровье стены: %d\n", npc->damage, *wall.health);
         }
     }
     else {

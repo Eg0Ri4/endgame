@@ -33,17 +33,22 @@ void wawes(float *spawnTimer, float spawnInterval);
 bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius);
 void DrawWalls(void);
 
+void DrawWallHPBar();
+
 typedef struct {
     Vector3 position;  // Позиция стены
     float width;       // Ширина
     float height;      // Высота
     float depth;       // Толщина
-    int health;        // Здоровье стены
+    int *health;        // Здоровье стены
 } Wall;
 
 // Теперь можно использовать extern для переменной wall
-extern Wall wall;
 extern int wallDestroyed;
+extern Wall wall;
 
+// SHOP AND WALLS
 
+#define MAX_WALL_HP 2000
+#define MAX_DEFENDER_LEVEL 3
 

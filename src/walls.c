@@ -12,7 +12,7 @@ Wall wall = {
     .width = WALL_WIDTH,
     .height = WALL_HEIGHT,
     .depth = WALL_weight,
-    .health = 1000
+    .health = &wallHP
 };
 //для теста отрисовка стены при конечной версии очистить
 void DrawWalls(void) {
@@ -47,3 +47,25 @@ bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius) {
     return false; // Если нет столкновения, возвращаем false
 }
 
+void DrawWallHPBar() {
+    int barWidth = 600; // Ширина полосы
+    int barHeight = 30; // Высота полосы
+    int barX = (GetScreenWidth() - barWidth) / 2;
+    int barY = 30; // Отступ сверху
+
+    float hpPercentage = (float)wallHP / MAX_WALL_HP;
+    int hpBarWidth = (int)(barWidth * hpPercentage);
+
+    // Фон полосы (серый)
+    DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
+
+    // Полоса HP (зеленый → желтый → красный)
+    Color hpColor = (hpPercentage > 0.6f) ? GREEN : (hpPercentage > 0.3f) ? YELLOW : RED;
+    DrawRectangle(barX, barY, hpBarWidth, barHeight, hpColor);
+
+    // Граница полосы (белая)
+    DrawRectangleLines(barX, barY, barWidth, barHeight, WHITE);
+
+    // Текст с HP
+    DrawText(TextFormat("Wall HP: %d / %d", wallHP, MAX_WALL_HP), barX + 200, barY + 5, 20, WHITE);
+}

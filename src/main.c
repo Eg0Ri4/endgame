@@ -1,7 +1,9 @@
 #include "includs.h"
 
+
 int main(void) {
-    const int screenWidth = 2560, screenHeight = 1440;
+    
+    const int screenWidth = 1280, screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Game");
 
     Camera3D camera = { 0 };
@@ -86,7 +88,7 @@ while (!WindowShouldClose()) {
 
             DrawFPS(20, 20);
         EndMode3D();
-
+        DrawWallHPBar();
         DrawShopUI();
         DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
 

@@ -7,65 +7,68 @@ const int wallHpUpgradeCost = 200;
 const int defenderUpgradeCost = 500;
 
 void DrawShopUI(void) {
-    if (!shopOpen) return;
-
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
 
-    // Размеры и позиции UI элементов
-    int shopPanelWidth = screenWidth * 0.23f; // Ширина панели магазина (23% от ширины экрана)
-    int shopPanelX = screenWidth - shopPanelWidth; // Позиция панели магазина (справа)
-    int textOffsetX = 20; // Отступ текста от края панели
-    int textOffsetY = 20; // Отступ текста сверху
-    int buttonHeight = 30; // Высота кнопки// Расстояние между элементами
+    // Адаптивная кнопка "SHOP"
+    int buttonPadding = 20;
+    int buttonTextSize = 20;
+    int textWidth = MeasureText("SHOP", buttonTextSize);
+    int buttonWidth = textWidth + buttonPadding * 2;
+    int buttonHeight = 50;
 
-    // Рисуем фон магазина
-    DrawRectangle(shopPanelX, 0, shopPanelWidth, screenHeight, Fade(DARKGRAY, 0.8f));
+    Rectangle shopButton = { screenWidth - buttonWidth - 10, 10, buttonWidth, buttonHeight };
 
-    // Рисуем заголовок магазина
-    DrawText("SHOP", shopPanelX + textOffsetX, textOffsetY, 30, WHITE);
+    // Проверка нажатия на кнопку "SHOP"
+    if (CheckCollisionPointRec(GetMousePosition(), shopButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        shopOpen = !shopOpen;
+    }
 
-    // Рисуем количество денег
-    DrawText(TextFormat("Money: %d", money), shopPanelX + textOffsetX, textOffsetY + 40, 20, GOLD);
+    if (shopOpen) {
+        int shopPanelWidth = screenWidth * 0.23f;
+        int shopPanelX = screenWidth - shopPanelWidth;
+        int textOffsetX = 20;
+        int textOffsetY = 20;
+        int buttonHeight = 30;
 
-    // Рисуем информацию о здоровье стены
-    DrawText(TextFormat("Wall HP: %d / %d", wallHP, MAX_WALL_HP), shopPanelX + textOffsetX, textOffsetY + 80, 20, WHITE);
+        // Фон магазина
+        DrawRectangle(shopPanelX, 0, shopPanelWidth, screenHeight, Fade(DARKGRAY, 0.85f));
 
-    // Рисуем кнопку улучшения стены
-    if (wallHP < MAX_WALL_HP && money >= wallHpUpgradeCost) {
-        Rectangle upgradeWallButton = {
-            shopPanelX + textOffsetX,
-            textOffsetY + 110,
-            shopPanelWidth - 2 * textOffsetX,
-            buttonHeight
-        };
+        // Заголовок
+        DrawText("SHOP", shopPanelX + textOffsetX, textOffsetY, 30, WHITE);
+        DrawText(TextFormat("Money: %d", money), shopPanelX + textOffsetX, textOffsetY + 40, 20, GOLD);
+        DrawText(TextFormat("Wall HP: %d / %d", wallHP, MAX_WALL_HP), shopPanelX + textOffsetX, textOffsetY + 80, 20, WHITE);
 
-        if (CheckCollisionPointRec(GetMousePosition(), upgradeWallButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        // Кнопка улучшения стены
+        Rectangle upgradeWallButton = { shopPanelX + textOffsetX, textOffsetY + 110, shopPanelWidth - 2 * textOffsetX, buttonHeight };
+        Color wallTextColor = (money >= wallHpUpgradeCost) ? GREEN : RED;
+
+        if (CheckCollisionPointRec(GetMousePosition(), upgradeWallButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && money >= wallHpUpgradeCost) {
             wallHP += 200;
             if (wallHP > MAX_WALL_HP) wallHP = MAX_WALL_HP;
             money -= wallHpUpgradeCost;
         }
-        DrawText(TextFormat("Upgrade (+200 HP) - %d$", wallHpUpgradeCost), upgradeWallButton.x, upgradeWallButton.y, 20, (money >= wallHpUpgradeCost) ? GREEN : RED);
-    }
 
-    // Рисуем информацию об уровне защитника
-    DrawText(TextFormat("Defender Level: %d / %d", defenderLevel, MAX_DEFENDER_LEVEL), shopPanelX + textOffsetX, textOffsetY + 150, 20, WHITE);
+        DrawText(TextFormat("Upgrade (+200 HP) - %d$", wallHpUpgradeCost), upgradeWallButton.x, upgradeWallButton.y, 20, wallTextColor);
 
-    // Рисуем кнопку улучшения защитника
-    if (defenderLevel < MAX_DEFENDER_LEVEL && money >= defenderUpgradeCost) {
-        Rectangle upgradeDefenderButton = {
-            shopPanelX + textOffsetX,
-            textOffsetY + 180,
-            shopPanelWidth - 2 * textOffsetX,
-            buttonHeight
-        };
+        // Информация об уровне защитника
+        DrawText(TextFormat("Defender Level: %d / %d", defenderLevel, MAX_DEFENDER_LEVEL), shopPanelX + textOffsetX, textOffsetY + 150, 20, WHITE);
 
-        if (CheckCollisionPointRec(GetMousePosition(), upgradeDefenderButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        // Кнопка улучшения защитника
+        Rectangle upgradeDefenderButton = { shopPanelX + textOffsetX, textOffsetY + 180, shopPanelWidth - 2 * textOffsetX, buttonHeight };
+        Color defenderTextColor = (money >= defenderUpgradeCost) ? GREEN : RED;
+
+        if (CheckCollisionPointRec(GetMousePosition(), upgradeDefenderButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && money >= defenderUpgradeCost) {
             defenderLevel++;
             money -= defenderUpgradeCost;
         }
-        DrawText(TextFormat("Upgrade Defender - %d$", defenderUpgradeCost), upgradeDefenderButton.x, upgradeDefenderButton.y, 20, (money >= defenderUpgradeCost) ? GREEN : RED);
+
+        DrawText(TextFormat("Upgrade Defender - %d$", defenderUpgradeCost), upgradeDefenderButton.x, upgradeDefenderButton.y, 20, defenderTextColor);
     }
+
+    // *** Кнопка "SHOP" остаётся сверху ***
+    DrawRectangleRec(shopButton, DARKGRAY);
+    DrawText("SHOP", shopButton.x + buttonPadding, shopButton.y + (buttonHeight / 2) - (buttonTextSize / 2), buttonTextSize, WHITE);
 }
 
 void ToggleShop(void) {
