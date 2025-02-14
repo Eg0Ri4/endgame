@@ -24,11 +24,6 @@ void LoadNPCModel(void) {
         printf("Ошибка загрузки модели NPC!\n");
     }
     Texture2D npcTexture = LoadTexture("resources/shaders/chevalier.bmp");
-    Shader shader = LoadShader(
-        "resources/shaders/lighting.vs",
-        "resources/shaders/lighting.fs"
-    );
-    npcModel.materials[0].shader = shader;
 
     // Применяем текстуру к материалу модели
     npcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = npcTexture;

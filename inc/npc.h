@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "includs.h"
 
 typedef struct {
     Vector3 position;
@@ -10,12 +11,12 @@ typedef struct {
     float attackTimer;
 } NPC;
 
-#define MAX_NPC 30
-#define NPC_count 8
+#define MAX_NPC 350
+#define NPC_count 20
 #define NPC_ATTACK_INTERVAL 2.0f
 
-extern NPC npcs[MAX_NPC];  // Declare the array as extern
-extern int npcCount;      //  Declare the counter as extern
+extern NPC npcs[MAX_NPC];  // 👈 Declare the array as extern
+extern int npcCount;       // 👈 Declare the counter as extern
 
 enum NPCState { IDLE, MOVING };
 
