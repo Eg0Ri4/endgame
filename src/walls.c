@@ -48,24 +48,24 @@ bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius) {
 }
 
 void DrawWallHPBar() {
-    int barWidth = 600; // Ширина полосы
-    int barHeight = 30; // Высота полосы
+    int barWidth = 600;
+    int barHeight = 30;
     int barX = (GetScreenWidth() - barWidth) / 2;
-    int barY = 30; // Отступ сверху
+    int barY = 30;
 
     float hpPercentage = (float)wallHP / MAX_WALL_HP;
     int hpBarWidth = (int)(barWidth * hpPercentage);
 
-    // Фон полосы (серый)
-    DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
+    // Фон полосы (чёрный с прозрачностью)
+    DrawRectangle(barX, barY, barWidth, barHeight, Fade(BLACK, 0.5f));
 
-    // Полоса HP (зеленый → желтый → красный)
+    // Полоса HP
     Color hpColor = (hpPercentage > 0.6f) ? GREEN : (hpPercentage > 0.3f) ? YELLOW : RED;
     DrawRectangle(barX, barY, hpBarWidth, barHeight, hpColor);
 
-    // Граница полосы (белая)
-    DrawRectangleLines(barX, barY, barWidth, barHeight, WHITE);
+    // Скругление углов
+    DrawRectangleRoundedLines((Rectangle){barX, barY, barWidth, barHeight}, 0.45f, 10, WHITE);
 
     // Текст с HP
-    DrawText(TextFormat("Wall HP: %d / %d", wallHP, MAX_WALL_HP), barX + 200, barY + 5, 20, WHITE);
+    DrawText(TextFormat("Wall HP: %d / %d", wallHP, MAX_WALL_HP), barX + 200, barY + 5, 22, WHITE);
 }
