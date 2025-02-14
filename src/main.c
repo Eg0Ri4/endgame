@@ -1,54 +1,96 @@
-#include "includs.h"
+#include "raylib.h"
+#include "raymath.h"
 
-int main(void) {
-    const int screenWidth = 1920, screenHeight = 1080;
-    InitWindow(screenWidth, screenHeight, "Static Wall on Grid");
+/*struct Light{
+    Vector3 lightPosition;
+    Color lightColor;
+    float lightPower = 1.0f;
+};*/
 
+void draw_info(int w, int m, int f, double s);
+int main(void)
+{
+    // Initialize window
+    const int screenWidth = 1280;
+    const int screenHeight = 720;
+    InitWindow(screenWidth, screenHeight, "3D Lighting Demo");
+
+    // Define camera
     Camera3D camera = { 0 };
-    camera.position = (Vector3){ 100.0f, 60.0f, 100.0f }; // Высокий угол
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f }; // Центр сцены
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; 
-    camera.fovy = 65.0f;
+    camera.position = (Vector3){80.0f, 60.0f, 80.0f };
+    camera.target = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    // Load the castle model
-    Model bgModel = LoadModel("resources/models/3D-G.glb");
-    Color gridColors[GRID_SIZE][GRID_SIZE] = { 0 }; // Массив цветов сетки
+    // Load model
+    Model model = LoadModel("resources/models/Last-vers-3d.glb"); // Replace with your model path
 
+    // Load lighting shader
+    Shader shader = LoadShader(
+        "resources/shaders/lighting.vs",
+        "resources/shaders/lighting.fs"
+    );
 
-    Vector2 cursorPos = { -100.0f, -100.0f };
-    Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
+    // Assign shader to ALL materials in the model
+    for (int i = 0; i < model.materialCount; i++) {
+        model.materials[i].shader = shader;
+    }
+
+    // Light parameters
+    Vector3 lightPosition = {-63.0f, 90.0f, 135.0f };
+    Color lightColor = { 255, 214, 170 };
+    float lightPower = 1.0f;
+
+    // Get shader locations
+    int lightPosLoc = GetShaderLocation(shader, "lightPosition");
+    int lightColorLoc = GetShaderLocation(shader, "lightColor");
+    int lightPowerLoc = GetShaderLocation(shader, "lightPower");
+    int viewPosLoc = GetShaderLocation(shader, "viewPosition");
 
     SetTargetFPS(60);
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
+        if (IsKeyDown(KEY_RIGHT)) lightPosition.x += 1.0f;
+        if (IsKeyDown(KEY_LEFT)) lightPosition.x -= 1.0f;
+        if (IsKeyDown(KEY_UP)) lightPosition.y -= 1.0f;
+        if (IsKeyDown(KEY_DOWN)) lightPosition.y += 1.0f;
+        if (IsKeyDown(KEY_LEFT_SHIFT)) lightPosition.z -= 1.0f;
+        if (IsKeyDown(KEY_SPACE)) lightPosition.z += 1.0f;
+        if (IsKeyDown(KEY_EQUAL)) lightPower += 0.1f;
+        if (IsKeyDown(KEY_MINUS)) lightPower -= 0.1f;
+        // Update shader values
+        float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
+        float lightPos[3] = { lightPosition.x, lightPosition.y, lightPosition.z };
+        float lightCol[4] = {
+            (float)lightColor.r/255.0f,
+            (float)lightColor.g/255.0f,
+            (float)lightColor.b/255.0f,
+            1.0f
+        };
 
-        HideCursor();
-        cursorPos = GetMousePosition();
-        int cellX, cellZ;
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            Ray ray = GetScreenToWorldRay(cursorPos, camera);
-            if (GetGridCellFromRay(ray, &cellX, &cellZ)) {
-                gridColors[cellX][cellZ] = (gridColors[cellX][cellZ].r == 255) ? WHITE : RED;
-            }
-        }
+        SetShaderValue(shader, viewPosLoc, cameraPos, SHADER_UNIFORM_VEC3);
+        SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+        SetShaderValue(shader, lightColorLoc, lightCol, SHADER_UNIFORM_VEC4);
+        SetShaderValue(shader, lightPowerLoc, &lightPower, SHADER_UNIFORM_FLOAT);
 
+        // Draw
         BeginDrawing();
-        ClearBackground(BLUE);
-        BeginMode3D(camera);
-
-
-            DrawModel(bgModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
-
-            DrawFPS(20, 20);
-        EndMode3D();
-
-        // Cursor rendering
-        DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
+            ClearBackground(DARKGRAY);
+            
+            BeginMode3D(camera);
+                DrawModel(model, Vector3Zero(), 1.0f, WHITE); // Draw the model
+                DrawSphere(lightPosition, 2.0f, WHITE); // Visualize light position
+            EndMode3D();
+            draw_info(lightPos[0], lightPos[1], lightPos[2], lightPower);
+            DrawFPS(10, 40);
         EndDrawing();
     }
 
+    UnloadModel(model);
+    UnloadShader(shader);
     CloseWindow();
-    UnloadModel(bgModel);
+
     return 0;
 }
