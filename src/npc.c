@@ -5,6 +5,7 @@
 
 NPC npcs[MAX_NPC];
 int npcCount = NPC_count;
+int wallDestroyed = 1;
 Model npcModel;
 
 void InitNPC(NPC *npc, Vector3 spawnPos) {
@@ -14,6 +15,7 @@ void InitNPC(NPC *npc, Vector3 spawnPos) {
     npc->disappearTimer = 90.0f;
     npc->hp = 100;
     npc->damage = 10;
+    npc->attackTimer = NPC_ATTACK_INTERVAL;  // Устанавливаем таймер атаки
 }
 
 void LoadNPCModel(void) {
@@ -27,15 +29,34 @@ void LoadNPCModel(void) {
     npcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = npcTexture;
 }
 
+
 void UpdateNPC(NPC *npc, float deltaTime) {
-    if (npc->state == IDLE) return;
+    Vector3 nextPos = npc->position;
+    nextPos.z -= 15.0f * deltaTime;
 
-    npc->position.z -= 6.0f * deltaTime;  // Movement based on time
-    npc->disappearTimer -= deltaTime;
-
-    if (npc->disappearTimer <= 0) {
-        npc->state = IDLE;
+    if (wall.health <= 0) {
+        wallDestroyed = 0;  // Если здоровье стены <= 0, она считается разрушенной
     }
+
+    if (wallDestroyed == 1 && CheckCollisionWithWall((Vector3){ nextPos.x, nextPos.y, nextPos.z }, 0.5f)) {
+        nextPos.z += 15.0f * deltaTime; // Откат назад, если стена цела
+
+        if ((rand() % 100) < 5) {  
+            nextPos.z += 100.0f * deltaTime;  // Откидываем еще на 1 фрейм
+        }
+
+        npc->attackTimer -= deltaTime;
+        if (npc->attackTimer <= 0.0f) {
+            wall.health -= npc->damage;
+            npc->attackTimer = NPC_ATTACK_INTERVAL;
+            printf("NPC ударил стену! Стена получила %d урона, здоровье стены: %d\n", npc->damage, wall.health);
+        }
+    }
+    else {
+        npc->state = MOVING; // Если стена разрушена, NPC двигается дальше
+    }
+
+    npc->position = nextPos;
 }
 
 void DrawNPC(NPC *npc) {
@@ -48,24 +69,53 @@ void DrawNPC(NPC *npc) {
                     WHITE);
     }
 }
-
+// спам врагами с уникальными координатами
 void SpawnRandomNPC(void) {
     if (npcCount >= MAX_NPC) return;
 
-    int randomX = -40 + (rand() % 70);
-    int randomZ = 105 + (rand() % 21);
+    int randomX, randomZ;
+    bool isValidSpawn = false;
 
-    Vector3 spawnPos = {
-        (float)randomX, 
-        0.0f,           // Опускаем NPC на землю
-        (float)randomZ  
-    };
+    while (!isValidSpawn) {
+        randomX = -40 + (rand() % 70);  // Генерация случайной X координаты
+        randomZ = 105 + (rand() % 21);  // Генерация случайной Z координаты
 
+        // Проверка на уникальность X координаты
+        isValidSpawn = true; // Сначала предполагаем, что координата уникальна
+        for (int i = 0; i < npcCount; i++) {
+            if ((int)npcs[i].position.x == randomX) {
+                isValidSpawn = false; // Если такая координата уже есть, меняем флаг
+                break; // Выход из цикла, если найдено совпадение
+            }
+        }
+    }
+
+    // Если координата уникальна, спавним NPC
+    Vector3 spawnPos = { (float)randomX, 0.0f, (float)randomZ };
     InitNPC(&npcs[npcCount], spawnPos);
     npcCount++;
 
     printf("Spawned NPC at: X=%.2f, Z=%.2f\n", spawnPos.x, spawnPos.z);
 }
+
+// обычный спам врагами не убирать потому что супер вариант который не ломаеться
+// void SpawnRandomNPC(void) {
+//     if (npcCount >= MAX_NPC) return;
+
+//     int randomX = -40 + (rand() % 70);
+//     int randomZ = 105 + (rand() % 21);
+
+//     Vector3 spawnPos = {
+//         (float)randomX, 
+//         0.0f,           // Опускаем NPC на землю
+//         (float)randomZ  
+//     };
+
+//     InitNPC(&npcs[npcCount], spawnPos);
+//     npcCount++;
+
+//     printf("Spawned NPC at: X=%.2f, Z=%.2f\n", spawnPos.x, spawnPos.z);
+// }
 
 void UnloadNPCModel(void) {
     UnloadModel(npcModel);

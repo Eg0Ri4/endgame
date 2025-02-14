@@ -6,7 +6,7 @@
 const int wallHpUpgradeCost = 200;
 const int defenderUpgradeCost = 500;
 
-void DrawShopUI() {
+void DrawShopUI(void) {
     if (!shopOpen) return;
 
     int screenWidth = GetScreenWidth();
@@ -68,6 +68,6 @@ void DrawShopUI() {
     }
 }
 
-void ToggleShop() {
+void ToggleShop(void) {
     if (IsKeyPressed(KEY_B)) shopOpen = !shopOpen;
 }

@@ -3,5 +3,5 @@
 
 extern bool shopOpen;
 
-void DrawShopUI();
-void ToggleShop();
+void DrawShopUI(void);
+void ToggleShop(void);

@@ -15,10 +15,32 @@
 #define CELL_SIZE 1.0f
 
 // wall
-#define WALL_COUNT 40
+#define WALL_COUNT 200
 #define WALL_X_poz 30
-#define WALL_weight 2
-#define WALL_HEIGHT 4.0f  
-#define WALL_WIDTH 50.0f
+#define WALL_weight 1
+#define WALL_HEIGHT 8.0f  
+#define WALL_WIDTH 80.0f // wall WIDTH
+
+#define wallX1 4
+#define wallZ 28
 
 void wawes(float *spawnTimer, float spawnInterval);
+//void drawWall(void);
+bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius);
+void DrawWalls(void);
+
+typedef struct {
+    Vector3 position;  // Позиция стены
+    float width;       // Ширина
+    float height;      // Высота
+    float depth;       // Толщина
+    int health;        // Здоровье стены
+} Wall;
+
+// Теперь можно использовать extern для переменной wall
+extern Wall wall;
+extern int wallDestroyed;
+
+
+
+

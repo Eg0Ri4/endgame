@@ -1,7 +1,7 @@
 #include "includs.h"
 
 int main(void) {
-    const int screenWidth = 1280, screenHeight = 720;
+    const int screenWidth = 2560, screenHeight = 1440;
     InitWindow(screenWidth, screenHeight, "Static Wall on Grid");
 
     Camera3D camera = { 0 };
@@ -22,11 +22,11 @@ int main(void) {
     SetTargetFPS(60);
 
     //MOBSS WAWES 
-    float spawnTimer = 10.1f;  // Timer for NPC spawning
-    float spawnInterval = 2.0f;  // Time interval in seconds to spawn NPCs
+    float spawnTimer = 20.1f;  // Timer for NPC spawning
+    float spawnInterval = 10.0f;  // Time interval in seconds to spawn NPCs
     
     while (!WindowShouldClose()) {
-    ToggleShop();
+        ToggleShop();
         //MOBSS FUNc
         wawes(&spawnTimer, spawnInterval);
     
@@ -43,7 +43,7 @@ int main(void) {
         BeginDrawing();
         ClearBackground(BLUE);
         BeginMode3D(camera);
-
+            //DrawWalls();
             for (int i = 0; i < npcCount; i++) {
                 DrawNPC(&npcs[i]);
             }
