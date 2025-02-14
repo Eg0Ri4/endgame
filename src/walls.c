@@ -46,3 +46,4 @@ bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius) {
     }
     return false; // Если нет столкновения, возвращаем false
 }
+

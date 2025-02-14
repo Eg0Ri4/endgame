@@ -1,7 +1,5 @@
-#include "npc.h"
-#include "raymath.h"
-#include <stdlib.h>
-#include <stdio.h>
+#include "includs.h"
+
 
 NPC npcs[MAX_NPC];
 int npcCount = 0;
