@@ -52,6 +52,7 @@ int main(void)
 
     while (!WindowShouldClose())
     {
+        //light movement
         if (IsKeyDown(KEY_RIGHT)) lightPosition.x += 1.0f;
         if (IsKeyDown(KEY_LEFT)) lightPosition.x -= 1.0f;
         if (IsKeyDown(KEY_UP)) lightPosition.y -= 1.0f;
