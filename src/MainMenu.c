@@ -3,14 +3,6 @@ const int screenWidth = 1280, screenHeight = 720;
 void MainMenu(void)
 {  
     InitWindow(screenWidth, screenHeight, "Main Menu");
-    InitAudioDevice();
-
-    // Load music
-    Music music = LoadMusicStream("resources/music/menu.mp3");  
-    
-    // Play the music
-    PlayMusicStream(music);
-    SetMusicVolume(music, 1.0f);
 
     typedef struct Button
     {
@@ -71,8 +63,6 @@ void MainMenu(void)
 
         EndDrawing();
     }
-    UnloadMusicStream(music);
-    CloseAudioDevice();
     UnloadTexture(background);
     
 }
