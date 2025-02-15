@@ -75,7 +75,7 @@ int main(void) {
     float spawnTimer = 0.0f;
     float miniWaveTimer = 0.0f;
     float waveTimer = 0.0f;
-    float waveInterval = 30.0f;
+    float waveInterval = 45.0f;
     int waveNumber = 1; 
 
     while (!WindowShouldClose()) {
@@ -156,7 +156,6 @@ int main(void) {
                     DrawModel(wallModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
                     DrawModel(bgModel, (Vector3){0.0f, 1.0f, 0.0f}, 1.0f, WHITE);
                 EndShaderMode();
-
 
                 // Отрисовка стрел
                 for (int i = 0; i < MAX_ARROWS; i++) {
