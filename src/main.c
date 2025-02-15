@@ -62,6 +62,7 @@ int main(void) {
     Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
 
     LoadNPCModel();
+    LoadTowerModel(); 
     Tower *towers = NULL;
     int towerCount = 0;
     Arrow arrows[MAX_ARROWS] = { 0 };
@@ -116,7 +117,6 @@ int main(void) {
         // Fire an arrow every few seconds
         for (int i = 0; i < towerCount; ++i){
             towers[i].arrowTimer += GetFrameTime();
-            printf("fuck this %f\n", towers[i].arrowTimer);
             if (towers[i].arrowTimer >= FIRERATE) {  
                 towers[i].arrowTimer = 0.0f;  // Reset timer
                 LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
@@ -159,7 +159,8 @@ int main(void) {
                     DrawArrow(arrows[i]);
                 }
                 for (int i = 0; i < towerCount; ++i){
-                    DrawSphere(towers[i].position, 1.0f, RED);
+                    DrawTower(&towers[i]);
+                    //DrawSphere(towers[i].position, 1.0f, RED);
                 }
                 // Отрисовка световой сферы
                 //DrawSphere(light.position, 2.0f, WHITE);

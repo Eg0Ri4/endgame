@@ -3,12 +3,15 @@
 int TowerAnimCount = 0;
 ModelAnimation *TowerAnimations = NULL;
 Model  towerModel;
+int FrameCount;
+
 // Create a tower at a given position
 Tower CreateTower(Vector3 position) {
     Tower tower;
     tower.position = position;
     tower.isShooting = false;
     tower.arrowTimer = (float)rand() / (FIRERATE / ((float)rand()/ 0.5));
+    tower.currentFrame= 0;
     tower.frameCounter = 0.0f;
     return tower;
 }
@@ -28,7 +31,7 @@ void LaunchArrow(Tower* tower, Arrow* arrows, NPC* npcs, int npcCount) {
     // No available arrows, return
     if (arrow == NULL) return;
 
-
+    tower->currentFrame += 60.0f;
     float minDistance = 50.0f;
     NPC* nearestNPC = NULL;
 
@@ -106,5 +109,23 @@ void LoadTowerModel(void) {
         printf("Помилка завантаження моделі NPC!\n");
         return;
     }
+
+    Matrix rotationX = MatrixRotateX(DEG2RAD * 90.0f);  // Change from -90 to 90
+    Matrix rotationY = MatrixRotateY(DEG2RAD * 180.0f);
+    Matrix rotationZ = MatrixRotateZ(DEG2RAD * 180.0f);
+    Matrix transform = MatrixMultiply(rotationZ, MatrixMultiply(rotationY, rotationX));
+    towerModel.transform = transform;
     TowerAnimations = LoadModelAnimations("resources/models/mag.glb", &TowerAnimCount);
+    FrameCount = TowerAnimations[0].frameCount;
+}
+
+void DrawTower(Tower *tower) {
+    /*if (tower->isShooting) {
+        tower->frameCounter += GetFrameTime() * 10.0f;  // ✅ Increase animation speed
+        tower->currentFrame = (int)fmod(tower->frameCounter, FrameCount);
+        UpdateModelAnimation(towerModel, TowerAnimations[0], tower->currentFrame);
+    }
+    tower->currentFrame = (int)fmod(tower->frameCounter, FrameCount);
+    UpdateModelAnimation(towerModel, TowerAnimations[0], tower->currentFrame);*/
+    DrawModel(towerModel, tower->position, 0.02f, WHITE);
 }
