@@ -117,7 +117,7 @@ int main(void) {
 
         HideCursor();
         Vector2 cursorPos = GetMousePosition();
-
+        if(wallDestroyed){
         // Fire an arrow every few seconds
         for (int i = 0; i < towerCount; ++i){
             towers[i].arrowTimer += GetFrameTime();
@@ -126,6 +126,7 @@ int main(void) {
                 LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
                 currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
             }
+        }
         }
         // Обновляем все стрелы
         for (int i = 0; i < MAX_ARROWS; i++){
@@ -153,17 +154,19 @@ int main(void) {
                 }
                 DrawFPS(10, 10);
                 BeginShaderMode(shader);
-                    DrawModel(wallModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
+                    if(wallDestroyed) DrawModel(wallModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
                     DrawModel(bgModel, (Vector3){0.0f, 1.0f, 0.0f}, 1.0f, WHITE);
                 EndShaderMode();
 
-                // Отрисовка стрел
-                for (int i = 0; i < MAX_ARROWS; i++) {
-                    DrawArrow(arrows[i]);
-                }
-                for (int i = 0; i < towerCount; ++i){
-                    DrawTower(&towers[i]);
-                    //DrawSphere(towers[i].position, 1.0f, RED);
+                if(wallDestroyed){
+                    // Отрисовка стрел
+                    for (int i = 0; i < MAX_ARROWS; i++) {
+                        DrawArrow(arrows[i]);
+                    }
+                    for (int i = 0; i < towerCount; ++i){
+                        DrawTower(&towers[i]);
+                        //DrawSphere(towers[i].position, 1.0f, RED);
+                    }
                 }
                 // Отрисовка световой сферы
                 //DrawSphere(light.position, 2.0f, WHITE);
