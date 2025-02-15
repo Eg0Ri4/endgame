@@ -1,77 +1,121 @@
 #include "includs.h"
 
-
 NPC npcs[MAX_NPC];
 int npcCount = 0;
 int wallDestroyed = 1;
 Model npcModel;
+ModelAnimation *npcAnimations = NULL;
+int npcAnimCount = 0;
+int npcCurrentFrame = 0;
+float npcFrameCounter = 0.0f;
 
 void InitNPC(NPC *npc, Vector3 spawnPos) {
+    npc->model = npcModel;   // Используем общую модель
     npc->position = spawnPos;
-    npc->position.y = 1.5f;  // Поднимаем модель выше земли
+    npc->position.y = 1.5f;
     npc->state = MOVING;
-    npc->disappearTimer = 1000.0f;
+    npc->disappearTimer = 50.0f;
     npc->hp = 100;
     npc->damage = 10;
-    npc->attackTimer = NPC_ATTACK_INTERVAL;  // Устанавливаем таймер атаки
+    npc->attackTimer = NPC_ATTACK_INTERVAL;
+    npc->frameCounter = 0.0f;
+    npc->currentFrame = 0;
+    npc->attackCurrentFrame = 0.0f;
 }
 
 void LoadNPCModel(void) {
-    npcModel = LoadModel("resources/models/chevalier.obj");
+    npcModel = LoadModel("resources/models/monster.glb");  
+
     if (npcModel.meshCount == 0) {
-        printf("Ошибка загрузки модели NPC!\n");
-    }
-    Texture2D npcTexture = LoadTexture("resources/shaders/chevalier.bmp");
-
-    // Применяем текстуру к материалу модели
-    npcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = npcTexture;
-}
-
-
-void UpdateNPC(NPC *npc, float deltaTime) {
-    Vector3 nextPos = npc->position;
-    nextPos.z -= WALK_SPEED * deltaTime;
-
-    if (wall.health <= 0) {
-        wallDestroyed = 0;  // Если здоровье стены <= 0, она считается разрушенной
-    }
-    npc->disappearTimer -= deltaTime;
-    if (npc->hp <= 0 || npc->disappearTimer <= 0) {
-        RemoveNPC(npc);  // Remove NPC from the array
+        printf("Помилка завантаження моделі NPC!\n");
         return;
     }
-    if (wallDestroyed == 1 && CheckCollisionWithWall((Vector3){ nextPos.x, nextPos.y, nextPos.z }, 0.5f)) {
-        nextPos.z += WALK_SPEED * deltaTime; // Откат назад, если стена цела
 
-        if ((rand() % 100) < 5) {  
-            nextPos.z += 100.0f * deltaTime;  // Откидываем еще на 1 фрейм
+    printf("Завантажено модель: Meshes = %d, Materials = %d\n", npcModel.meshCount, npcModel.materialCount);
+    
+    npcAnimations = LoadModelAnimations("resources/models/monster.glb", &npcAnimCount);
+    if (npcAnimations == NULL || npcAnimCount == 0) {
+        printf("Помилка завантаження анімації!\n");
+    } else {
+        printf("Завантажено %d анімацій (використовується тільки перша)\n", npcAnimCount);
+    }
+}
+
+void UpdateNPC(NPC *npc, float deltaTime) {
+    // Обновляем состояние стены: если здоровье опустилось до 0, помечаем стену как разрушенную
+    if (wall.health <= 0) {
+        wallDestroyed = 0;
+    }
+    // Обработка смерти NPC
+    if (npc->hp <= 0 && npc->state != DEAD) {
+        npc->state = DEAD;
+        npc->frameCounter = 0.0f;
+        npc->currentFrame = 0;
+    }
+    if (npc->state == DEAD) {
+        npc->frameCounter += 60.0f * deltaTime;
+        int deathFrameCount = npcAnimations[0].frameCount;
+        if (npc->currentFrame < deathFrameCount) {
+            npc->currentFrame = (int)npc->frameCounter;
+        } 
+        else {
+            npc->currentFrame = deathFrameCount - 1;
+            RemoveNPC(npc);
+            return;
         }
+        return;
+    }
+
+    npc->disappearTimer -= deltaTime;
+    if (npc->disappearTimer <= 0) {
+        RemoveNPC(npc);
+        return;
+    }
+
+    npc->frameCounter += 60.0f * deltaTime;
+    npc->position.z -= WALK_SPEED * deltaTime;
+
+    if (!CheckCollisionWithWall(npc->position, 0.5f)) {
+        npc->state = MOVING;
+    }
+    else if (wallDestroyed == 1 && CheckCollisionWithWall(npc->position, 0.5f)) {
+        npc->state = ATTACK;
+        npc->attackCurrentFrame += 60.0f * deltaTime;
+        
+        npc->position.z += WALK_SPEED * deltaTime;
 
         npc->attackTimer -= deltaTime;
         if (npc->attackTimer <= 0.0f) {
             wall.health -= npc->damage;
             npc->attackTimer = NPC_ATTACK_INTERVAL;
+            npc->attackCurrentFrame = 0.0f;
             printf("NPC ударил стену! Стена получила %d урона, здоровье стены: %d\n", npc->damage, wall.health);
         }
     }
     else {
-        npc->state = MOVING; // Если стена разрушена, NPC двигается дальше
+        npc->state = MOVING;
     }
-
-    npc->position = nextPos;
 }
 
 void DrawNPC(NPC *npc) {
-    if (npc->state == MOVING) {
-        DrawModelEx(npcModel, 
-                    npc->position, 
-                    (Vector3){0, 1, 0},  // Ось вращения (Y)
-                    180.0f,              // Угол поворота
-                    (Vector3){2.0f, 2.0f, 2.0f},  // Масштаб
-                    WHITE);
+    if (npc->state == DEAD) {
+        int deathFrameCount = npcAnimations[0].frameCount;
+        int frameToDraw = (npc->currentFrame < deathFrameCount) ? npc->currentFrame : deathFrameCount - 1;
+        UpdateModelAnimation(npcModel, npcAnimations[0], frameToDraw);
+    } else if (npc->state == ATTACK) {
+        UpdateModelAnimation(npcModel, npcAnimations[1], (int)fmod(npc->attackCurrentFrame, npcAnimations[1].frameCount));
+    } else { 
+        UpdateModelAnimation(npcModel, npcAnimations[2], (int)fmod(npc->frameCounter, npcAnimations[2].frameCount));
     }
+
+    Matrix rotationX = MatrixRotateX(DEG2RAD * -90.0f);
+    Matrix rotationY = MatrixRotateY(DEG2RAD * 180.0f);
+    Matrix transform = MatrixMultiply(rotationY, rotationX);
+    npcModel.transform = transform;
+    
+    DrawModel(npcModel, npc->position, 0.03f, WHITE);
 }
-// спам врагами с уникальными координатами
+
 void SpawnRandomNPC(void) {
     if (npcCount + NPC_count >= MAX_NPC) return;
 
@@ -79,45 +123,41 @@ void SpawnRandomNPC(void) {
     bool isValidSpawn = false;
 
     while (!isValidSpawn) {
-        randomX = -40.0f + (rand() % 70);  //-40 70Генерация случайной X координаты
-        randomZ = 110.0f + (rand() % 4);  // 5Генерация случайной Z координаты
+        randomX = -36.0f + (rand() % 63);  //-40 70Генерация случайной X координаты
+        randomZ = 140.0f + (rand() % 8);  // 5Генерация случайной Z координаты
         
-        // Проверка на уникальность комбинации (X, Z)
-        isValidSpawn = true; // Сначала предполагаем, что комбинация уникальна
+        isValidSpawn = true;
         for (int i = 0; i < npcCount; i++) {
-            // Сравнение обеих координат для уникальности
             if (npcs[i].position.x == randomX && npcs[i].position.z == randomZ) {
-                isValidSpawn = false; // Если такая комбинация уже есть, меняем флаг
-                break; // Выход из цикла, если найдено совпадение
+                isValidSpawn = false;
+                break;
             }
         }
     }
-
     Vector3 spawnPos = { randomX, 0.0f, randomZ };
-    
     InitNPC(&npcs[npcCount], spawnPos);
-
     npcCount++;
 }
 
-// обычный спам врагами не убирать потому что супер вариант который не ломаеться
-// void SpawnRandomNPC(void) {
-//     if (npcCount >= MAX_NPC) return;
+/* //обычный спам врагами не убирать потому что супер вариант который не ломаеться
+void SpawnRandomNPC(void) {
+    if (npcCount >= MAX_NPC) return;
 
-//     int randomX = -40 + (rand() % 70);
-//     int randomZ = 105 + (rand() % 21);
+    int randomX = -40 + (rand() % 70);
+    int randomZ = 105 + (rand() % 21);
 
-//     Vector3 spawnPos = {
-//         (float)randomX, 
-//         0.0f,           // Опускаем NPC на землю
-//         (float)randomZ  
-//     };
+    Vector3 spawnPos = {
+        (float)randomX, 
+        0.0f,           // Опускаем NPC на землю
+        (float)randomZ  
+    };
 
-//     InitNPC(&npcs[npcCount], spawnPos);
-//     npcCount++;
+    InitNPC(&npcs[npcCount], spawnPos);
+    npcCount++;
 
-//     printf("Spawned NPC at: X=%.2f, Z=%.2f\n", spawnPos.x, spawnPos.z);
-// }
+    printf("Spawned NPC at: X=%.2f, Z=%.2f\n", spawnPos.x, spawnPos.z);
+}
+*/
 
 void UnloadNPCModel(void) {
     UnloadModel(npcModel);
@@ -125,12 +165,12 @@ void UnloadNPCModel(void) {
 
 void RemoveNPC(NPC *npc) {
     for (int i = 0; i < npcCount; i++) {
-        if (&npcs[i] == npc) {  // Find NPC in the array
-            // Shift remaining NPCs down
+        if (&npcs[i] == npc) {
+
             for (int j = i; j < npcCount - 1; j++) {
                 npcs[j] = npcs[j + 1];
             }
-            npcCount--;  // Reduce NPC count
+            npcCount--;
             printf("NPC removed from game!\n");
             return;
         }

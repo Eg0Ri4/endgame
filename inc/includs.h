@@ -24,7 +24,7 @@
 #define WALL_WIDTH 80.0f // wall WIDTH
 
 #define wallX1 4
-#define wallZ 28
+#define wallZ 29
 #define WALK_SPEED 8.0f
 #define SHOOT_SPEED 8.0f
 
@@ -44,6 +44,4 @@ typedef struct {
 // Теперь можно использовать extern для переменной wall
 extern Wall wall;
 extern int wallDestroyed;
-
-
 
