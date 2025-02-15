@@ -26,16 +26,15 @@ void LaunchArrow(Tower* tower, Arrow* arrows, NPC* npcs, int npcCount) {
     float minDistance = FLT_MAX;
     NPC* nearestNPC = NULL;
 
-    // Find the nearest NPC within range
-    for (int i = 0; i < npcCount; i++) {
-        if (npcs[i].state == MOVING) {
-            float distance = Vector3Distance(tower->position, npcs[i].position);
-            if (distance < minDistance && distance < 70.0f) {  // Check if within range
-                minDistance = distance;
-                nearestNPC = &npcs[i];
+        for (int i = 0; i < npcCount; i++) {
+            if (npcs[i].state != DEAD) {
+                float distance = Vector3Distance(tower->position, npcs[i].position);
+                if (distance < minDistance && distance < 70.0f) {
+                    minDistance = distance;
+                    nearestNPC = &npcs[i];
+                }
             }
         }
-    }
 
     // Launch arrow towards the nearest NPC
     if (nearestNPC != NULL) {
@@ -48,20 +47,18 @@ void LaunchArrow(Tower* tower, Arrow* arrows, NPC* npcs, int npcCount) {
 }
 
 
-// Update the arrow's position
 void UpdateArrow(Arrow* arrow, float deltaTime) {
     if (arrow->isActive) {
         arrow->position = Vector3Add(arrow->position, Vector3Scale(arrow->velocity, deltaTime));
+
     }
 }
 
-// Check collision between arrow and NPC
-// Check collision between arrow and NPC
 void CheckArrowCollisionWithNPCs(Arrow* arrow, NPC* npcs, int npcCount) {
     if (!arrow->isActive) return;
 
     for (int i = 0; i < npcCount; i++) {
-        if (npcs[i].state == MOVING) {  
+        if (npcs[i].state != DEAD) {
             float distance = Vector3Distance(arrow->position, npcs[i].position);
             if (distance < 2.5f) {  // Collision detected
                 npcs[i].hp -= arrow->damage;  // Apply damage
@@ -74,7 +71,6 @@ void CheckArrowCollisionWithNPCs(Arrow* arrow, NPC* npcs, int npcCount) {
         }
     }
 }
-
 
 // Draw the arrow
 void DrawArrow(Arrow arrow) {
