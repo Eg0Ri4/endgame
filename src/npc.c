@@ -16,11 +16,11 @@ void TriggerGameOver(void) {
 }
 
 void InitNPC(NPC *npc, Vector3 spawnPos) {
-    npc->model = npcModel;   // Используем общую модель
+    npc->model = npcModel;
     npc->position = spawnPos;
     npc->position.y = 1.5f;
     npc->state = MOVING;
-    npc->disappearTimer = 40.0f;
+    npc->disappearTimer = 45.0f;
     npc->hp = 100;
     npc->damage = 10;
     npc->attackTimer = NPC_ATTACK_INTERVAL;
@@ -49,11 +49,9 @@ void LoadNPCModel(void) {
 }
 
 void UpdateNPC(NPC *npc, float deltaTime) {
-    // Обновляем состояние стены: если здоровье опустилось до 0, помечаем стену как разрушенную
     if (wall.health <= 0) {
         wallDestroyed = 0;
     }
-    // Обработка смерти NPC
     if (npc->hp <= 0 && npc->state != DEAD) {
         npc->state = DEAD;
 
@@ -68,7 +66,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
         } 
         else {
             npc->currentFrame = deathFrameCount - 1;
-            money += 2;
+            money += 15;
             printf("%d",money);
             RemoveNPC(npc);
             return;
@@ -138,8 +136,8 @@ void SpawnRandomNPC(void) {
     bool isValidSpawn = false;
 
     while (!isValidSpawn) {
-        randomX = -36.0f + (rand() % 63);  //-40 70Генерация случайной X координаты
-        randomZ = 140.0f + (rand() % 12);  // 5Генерация случайной Z координаты
+        randomX = -36.0f + (rand() % 63);
+        randomZ = 200.0f + (rand() % 12);
         
         isValidSpawn = true;
         for (int i = 0; i < npcCount; i++) {
@@ -154,7 +152,7 @@ void SpawnRandomNPC(void) {
     npcCount++;
 }
 
-/* //обычный спам врагами не убирать потому что супер вариант который не ломаеться
+/* //обычный спам врагами не убирать
 void SpawnRandomNPC(void) {
     if (npcCount >= MAX_NPC) return;
 

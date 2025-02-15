@@ -1,6 +1,6 @@
 #include "includs.h"
 
-// --- Collision and Cube Drawing Functions ---
+// Collision
 
 bool CheckGoldCubeCollision(Ray ray, Vector3 cubePos, float cubeSize) {
     BoundingBox cubeBox = {
@@ -28,34 +28,28 @@ bool CheckGoldCubeCollision(Ray ray, Vector3 cubePos, float cubeSize) {
 }
 
 void DrawGoldCube(Vector3 cubePos, float cubeSize) {
-    // Make the gold cube invisible while still allowing collisions
     (void)cubePos;
     (void)cubeSize;
-    // Do nothing here
 }
-
-// --- Existing Shop UI Code ---
 
 void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight, 
                        int* money, int* wallHP, int maxWallHP, 
                        int* defenderLevel, int maxDefenderLevel,
                        Tower **towers, int *towerCount)
 {
-    // --- Layout Constants ---
-    int sidebarWidth    = 320;  // Increased width
-    int sidebarHeight   = 420;  // Increased height to accommodate new button
+    int sidebarWidth    = 320;
+    int sidebarHeight   = 420;
     int headerHeight    = 50;
     int buttonHeight    = 60;   
-    int buttonWidth     = 300;  // Widen the buttons a bit
+    int buttonWidth     = 300;
     float fontSize      = 24.0f;
     float letterSpacing = 3.0f; 
     float labelPriceGap = 120.0f; 
 
-    // --- Calculate Sidebar Position to Center Vertically ---
+    // sidebar
     int sidebarX = screenWidth - sidebarWidth;
     int sidebarY = (screenHeight - sidebarHeight) / 2;
 
-    // --- Colors ---
     Color sideBarColor    = (Color){  20,  20,  20, 220 };
     Color sideBarHeaderBg = (Color){  40,  40,  40, 255 };
     Color textWhite       = RAYWHITE;
@@ -64,7 +58,6 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
     Color textGreen       = GREEN;
     Color textRed         = RED;
 
-    // --- Draw Sidebar Background & Header ---
     DrawRectangle(sidebarX, sidebarY, sidebarWidth, sidebarHeight, sideBarColor);
     DrawRectangle(sidebarX, sidebarY, sidebarWidth, headerHeight, sideBarHeaderBg);
     DrawTextEx(
@@ -76,7 +69,6 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         textWhite
     );
 
-    // --- Display Money ---
     DrawTextEx(
         interFont,
         TextFormat("Money: %d", *money),
@@ -86,7 +78,6 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         goldColor
     );
 
-    // --- UPGRADE WALL BUTTON ---
     {
         Rectangle upgradeWallRect = {
             (float)(sidebarX + 10),
@@ -127,7 +118,6 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         }
     }
 
-    // --- Defender Level Display ---
     DrawTextEx(
         interFont,
         TextFormat("Defender Level: %d / %d", *defenderLevel, maxDefenderLevel),
@@ -137,7 +127,6 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         textWhite
     );
 
-    // --- UPGRADE DEFENDER BUTTON ---
     {
         Rectangle upgradeDefRect = {
             (float)(sidebarX + 10),
@@ -148,7 +137,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         DrawRectangleRec(upgradeDefRect, buttonBgColor);
 
         const char* upgradeDefLabel = "Add Defender";
-        const char* upgradeDefPrice = " -500$";
+        const char* upgradeDefPrice = " -250$";
 
         Vector2 labelPos = {
             upgradeDefRect.x + 10,
@@ -168,9 +157,9 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeDefRect))
             {
-                if (*money >= 500 && *defenderLevel < MAX_SHOOTERS)
+                if (*money >= 250 && *defenderLevel < MAX_SHOOTERS)
                 {
-                    *money -= 500;
+                    *money -= 250;
                     AddTower(towers, towerCount, (Vector3){*towerCount*2-34 + ((*towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
             
                     (*defenderLevel)++;
@@ -213,8 +202,9 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
                 if (*money >= 100)
                 {
                     *money -= 100;
-                    *wallHP += 500;
-                    if (*wallHP > maxWallHP) *wallHP = maxWallHP;
+                    wall.health += 500;
+                    wallDestroyed = 1;
+                    if (wall.health > maxWallHP) wall.health = maxWallHP;
                 }
             }
         }

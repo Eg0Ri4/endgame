@@ -25,7 +25,7 @@
 
 #define wallX1 4
 #define wallZ 32
-#define WALK_SPEED 8.0f
+#define WALK_SPEED 7.0f
 #define SHOOT_SPEED 8.0f
 
 void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float waveInterval, int *waveNumber, int *currentNPCCount);
