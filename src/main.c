@@ -59,8 +59,8 @@ while (!WindowShouldClose()) {
         // Fire an arrow every few seconds
         for (int i = 0; i < towerCount; ++i){
             towers[i].arrowTimer += GetFrameTime();
-            printf("fuck this %d\n", towers[i].arrowTimer);
-            if (towers[i].arrowTimer >= 0.5f) {  
+            printf("fuck this %f\n", towers[i].arrowTimer);
+            if (towers[i].arrowTimer >= FIRERATE) {  
                 towers[i].arrowTimer = 0.0f;  // Reset timer
                 LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
                 currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;

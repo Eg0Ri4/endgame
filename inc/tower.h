@@ -4,12 +4,13 @@
 #include "includs.h"  // Include the full NPC definition here
 
 #define MAX_ARROWS 100 
-#define MAX_SHOOTERS 21
+#define MAX_SHOOTERS 22
+#define FIRERATE 2.0f
 
 typedef struct {
     Vector3 position;
     bool isShooting;
-    int arrowTimer;
+    float arrowTimer;
 } Tower;
 
 // Arrow Structure
