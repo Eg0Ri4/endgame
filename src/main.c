@@ -26,8 +26,8 @@ bool GetGridCellFromRay(Ray ray, int *cellX, int *cellZ)
 int main(void)
 {
        MainMenu();
-      CloseWindow();
- 
+     
+        CloseWindow();
    
     const int screenWidth = 1920, screenHeight = 1080;
     InitWindow(screenWidth, screenHeight, "Click on Grid Cells!");
