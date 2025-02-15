@@ -3,7 +3,15 @@ const int screenWidth = 1280, screenHeight = 720;
 void MainMenu(void)
 {  
     InitWindow(screenWidth, screenHeight, "Main Menu");
+    InitAudioDevice();
+
+    // Load music
+    Music music = LoadMusicStream("resources/music/menu.mp3");  
     
+    // Play the music
+    PlayMusicStream(music);
+    SetMusicVolume(music, 1.0f);
+
     typedef struct Button
     {
         Rectangle bounds;
@@ -13,8 +21,8 @@ void MainMenu(void)
 
     Button buttons[3] = {
         {{screenWidth / 2 - 100, 330, 200, 50}, (Color){139, 69, 19, 180}, "Play"},       
-        {{screenWidth / 2 - 100, 400, 200, 50}, (Color){105, 105, 105, 180}, "Settings"}, 
-        {{screenWidth / 2 - 100, 480, 200, 50}, (Color){92, 64, 51, 180}, "Credits"}};   
+        /*{{screenWidth / 2 - 100, 400, 200, 50}, (Color){105, 105, 105, 180}, "Settings"}, 
+        {{screenWidth / 2 - 100, 480, 200, 50}, (Color){92, 64, 51, 180}, "Credits"}*/};   
 
     Texture2D background = LoadTexture("resources/images/castle.png");
     
@@ -63,7 +71,8 @@ void MainMenu(void)
 
         EndDrawing();
     }
-
+    UnloadMusicStream(music);
+    CloseAudioDevice();
     UnloadTexture(background);
     
 }

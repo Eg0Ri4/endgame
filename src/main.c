@@ -16,6 +16,14 @@ int main(void) {
     MainMenu();
     const int screenWidth = 1920, screenHeight = 1080;
     InitWindow(screenWidth, screenHeight, "Game");
+    // Initialize audio device
+    InitAudioDevice();
+    // Load music
+    Music music = LoadMusicStream("resources/music/main.mp3");  
+    
+    // Play the music
+    PlayMusicStream(music);
+    SetMusicVolume(music, 1.0f);
 
     bool isFullscreen = false;
 
@@ -256,11 +264,10 @@ int main(void) {
         EndDrawing();
     }
     
+    // Clean up resources
+    UnloadMusicStream(music);
+    CloseAudioDevice();
     CloseWindow();
-    UnloadModel(bgModel);
-    UnloadNPCModel();
-    UnloadShader(shader);
-    UnloadFont(interFont);
 
     return 0;
 }
