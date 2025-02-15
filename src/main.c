@@ -13,6 +13,7 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
+    MainMenu();
     const int screenWidth = 1920, screenHeight = 1080;
     InitWindow(screenWidth, screenHeight, "Game");
 
@@ -72,7 +73,7 @@ int main(void) {
 
     bool shopMenuOpen = false;
     int wallHP = 440, maxWallHP = 2000;
-    int defenderLevel = 0, maxDefenderLevel = 3;
+    int defenderLevel = 0, maxDefenderLevel = 100;
 
     Vector3 goldCubePos = { -8.0f, 8.0f, -25.0f };
     float goldCubeSize = 42.0f;
@@ -154,7 +155,7 @@ int main(void) {
                 // Обновление логики башен и стрел
                 for (int i = 0; i < towerCount; ++i) {
                     towers[i].arrowTimer += GetFrameTime();
-                    if (towers[i].arrowTimer >= FIRERATE) {  
+                    if (towers[i].arrowTimer >= FIRERATE - (defenderLevel*0.2f)) {  
                         towers[i].arrowTimer = 0.0f;  // Сброс таймера
                         LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
                         currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
@@ -247,7 +248,7 @@ int main(void) {
             }
             Vector2 cursorPos = GetMousePosition();
             DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
-            DrawFPS(100, 100);/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //DrawFPS(100, 100);/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (paused) {
                 DrawText("PAUSED", screenWidth/2 - MeasureText("PAUSED", 40)/2, screenHeight/2 - 20, 40, RED);

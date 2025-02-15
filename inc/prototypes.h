@@ -8,3 +8,4 @@ void drawWall(void);
 bool GetGridCellFromRay(Ray ray, int *cellX, int *cellZ);
 Vector3 MoveTowardsParabola(Vector3 current, Vector3 target, float speed, float gravity);
 bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius);
+void MainMenu(void);

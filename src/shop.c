@@ -87,8 +87,8 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         };
         DrawRectangleRec(upgradeWallRect, buttonBgColor);
 
-        const char* upgradeWallLabel = "Upgrade Wall";
-        const char* upgradeWallPrice = " -200$";
+        const char* upgradeWallLabel = "Add Defender";
+        const char* upgradeWallPrice = " -300$";
 
         Vector2 labelPos = {
             upgradeWallRect.x + 10,
@@ -108,10 +108,12 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeWallRect))
             {
-                if (*money >= 200)
+                if (*money >= 300)
                 {
-                    *money -= 200;
+                    *money -= 300;
                     *wallHP += 2000;
+                    AddTower(towers, towerCount, (Vector3){*towerCount*2-34 + ((*towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
+                    
                     if (*wallHP > maxWallHP) *wallHP = maxWallHP;
                 }
             }
@@ -120,7 +122,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
 
     DrawTextEx(
         interFont,
-        TextFormat("Defender Level: %d / %d", *defenderLevel, maxDefenderLevel),
+        TextFormat("Defender Level: %d", *defenderLevel),
         (Vector2){ (float)(sidebarX + 20), (float)(sidebarY + 200) },
         fontSize,
         letterSpacing,
@@ -136,8 +138,8 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         };
         DrawRectangleRec(upgradeDefRect, buttonBgColor);
 
-        const char* upgradeDefLabel = "Add Defender";
-        const char* upgradeDefPrice = " -250$";
+        const char* upgradeDefLabel = "Upgrade";
+        const char* upgradeDefPrice = " -2000$";
 
         Vector2 labelPos = {
             upgradeDefRect.x + 10,
@@ -157,11 +159,9 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeDefRect))
             {
-                if (*money >= 250 && *defenderLevel < MAX_SHOOTERS)
+                if ((*money >= 2000 && *defenderLevel < MAX_SHOOTERS) || *defenderLevel <= maxDefenderLevel)
                 {
-                    *money -= 250;
-                    AddTower(towers, towerCount, (Vector3){*towerCount*2-34 + ((*towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
-            
+                    *money -= 2000;
                     (*defenderLevel)++;
                 
             }
