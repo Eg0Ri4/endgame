@@ -74,7 +74,6 @@ int main(void) {
 
     // --- Shop / Menu variables ---
     bool shopMenuOpen = false;
-    int money = 1000;
     int wallHP = 440, maxWallHP = 2000;
     int defenderLevel = 0, maxDefenderLevel = 3;
 
