@@ -1,7 +1,18 @@
-#pragma once
-#include <includs.h>
+#ifndef SHOP_H
+#define SHOP_H
 
-extern bool shopOpen;
+#include "raylib.h"
 
-void DrawShopUI(void);
-void ToggleShop(void);
+// Existing RenderShopSidebar declaration
+void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight, 
+                         int* money, int* wallHP, int maxWallHP, 
+                         int* defenderLevel, int maxDefenderLevel);
+
+// --- New Function Prototypes ---
+// Check if a ray collides with the gold cube.
+bool CheckGoldCubeCollision(Ray ray, Vector3 cubePos, float cubeSize);
+
+// Draw the gold cube (shop button) in the 3D world.
+void DrawGoldCube(Vector3 cubePos, float cubeSize);
+
+#endif // SHOP_H

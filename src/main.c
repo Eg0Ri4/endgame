@@ -1,4 +1,5 @@
 #include "includs.h"
+#include "shop.h"      // Include our shop module (with gold cube functions)
 #include <math.h>
 
 // Функция сглаженной интерполяции (ускорение в начале и замедление в конце)
@@ -16,8 +17,12 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
-    const int screenWidth = 2560, screenHeight = 1440;
+    const int screenWidth = 1280, screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Game");
+
+    // Load font for UI
+    Font interFont = LoadFont("resources/fonts/Inter-Regular.ttf");
+    SetTextureFilter(interFont.texture, TEXTURE_FILTER_BILINEAR);
 
     // Инициализация камер
     Camera3D cam1 = { 0 };
@@ -31,59 +36,87 @@ int main(void) {
     cam2.position = (Vector3){ 55.0f, 55.0f, 0.0f };
     cam2.target   = (Vector3){ -17.0f, 0.0f, -15.0f };
     cam2.up       = (Vector3){ 0.0f, 1.0f, 0.0f };
-    cam2.fovy     = 75.0f;  // Немного увеличенный FOV для более естественного эффекта
+    cam2.fovy     = 75.0f;
     cam2.projection = CAMERA_PERSPECTIVE;
 
-    // Начинаем с первой камеры
+    // Start with cam1
     Camera3D camera = cam1;
-    // Переменные для анимации камеры
-    bool animating = false;   // Флаг, что анимация запущена
-    bool camState = false;    // false: cam1 активна, true: cam2 активна
-    float t = 0.0f;           // Прогресс анимации (от 0 до 1)
-    const float transitionDuration = 1.2f; // Длительность перехода увеличена для плавности
+    bool animating = false;
+    bool camState = false;
+    float t = 0.0f;
+    const float transitionDuration = 1.2f;
 
-    // Кнопка на экране
+    // Button to toggle camera (UI)
     Rectangle buttonRect = { 20, 20, 200, 40 };
 
-    // Загрузка модели замка
+    // Load castle model
     Model bgModel = LoadModel("resources/models/3D-G.glb");
 
-    // Загрузка шейдера освещения
+    // Load lighting shader
     Shader shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
     for (int i = 0; i < bgModel.materialCount; i++) {
         bgModel.materials[i].shader = shader;
     }
 
-    Light light = CreateLight((Vector3){ -63.0f, 90.0f, 135.0f }, (Color){ 255, 214, 170, 255}, 0.5f);
+    Light light = CreateLight((Vector3){ -63.0f, 90.0f, 135.0f },
+                              (Color){ 255, 214, 170, 255}, 0.5f);
 
     Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
 
+    // Load NPC model and create tower
     LoadNPCModel();
-    Tower tower = CreateTower((Vector3){ -5.0f, 8.0f, 5.0f }); // Позиция башни
+    Tower tower = CreateTower((Vector3){ -5.0f, 8.0f, 5.0f });
+
+    // Arrow array
     Arrow arrows[MAX_ARROWS] = { 0 };
     int currentArrowIndex = 0;
 
     SetTargetFPS(300);
 
-    // MOB Waves (dummy)
+    // Parameters for mob waves (dummy logic)
     float spawnTimer = 20.1f;
     float spawnInterval = 10.0f;
 
+    // --- Shop / Menu variables ---
+    bool shopMenuOpen = false;
+    int money = 1000;
+    int wallHP = 440, maxWallHP = 2000;
+    int defenderLevel = 0, maxDefenderLevel = 3;
+
+    // --- Gold Cube (Shop Button) variables ---
+    Vector3 goldCubePos = { -8.0f, 8.0f, -25.0f };
+    float goldCubeSize = 42.0f;
+
     while (!WindowShouldClose()) {
-
-        ToggleShop();
-        wawes(&spawnTimer, spawnInterval);
-
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();
 
-        // При нажатии на кнопку запускаем анимацию переключения камеры
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)){
+        // --- Shop Toggle Logic via Gold Cube Click ---
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            if (shopMenuOpen) {
+                // If shop is open, clicking outside the shop sidebar closes it.
+                Rectangle shopRect = { (float)(screenWidth - 300), 0, 300, screenHeight };
+                if (!CheckCollisionPointRec(mousePoint, shopRect)) {
+                    shopMenuOpen = false;
+                }
+            } else {
+                // If shop is closed, check for click on gold cube.
+                Ray ray = GetMouseRay(mousePoint, camera);
+                if (CheckGoldCubeCollision(ray, goldCubePos, goldCubeSize)) {
+                    shopMenuOpen = true;
+                }
+            }
+        }
+
+        // Dummy mob wave logic
+        wawes(&spawnTimer, spawnInterval);
+
+        // --- Camera Toggle Logic (via UI button) ---
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)) {
             animating = true;
             t = 0.0f;
-            camState = !camState;  // Переключаем состояние: если cam1, то переходим на cam2, и наоборот
+            camState = !camState;
         }
-        // Если анимация запущена, обновляем прогресс
         if (animating) {
             t += deltaTime / transitionDuration;
             if (t >= 1.0f) { t = 1.0f; animating = false; }
@@ -104,62 +137,75 @@ int main(void) {
         HideCursor();
         Vector2 cursorPos = GetMousePosition();
 
-        // Логика стрельбы: каждые 0.5 сек запускаем стрелу
+        // --- Arrow Launching Logic ---
         static float arrowTimer = 1.0f;
         arrowTimer += deltaTime;
-        if (arrowTimer >= 0.5f){
+        if (arrowTimer >= 0.5f) {
             arrowTimer = 0.0f;
             LaunchArrow(&tower, &arrows[currentArrowIndex], npcs, npcCount);
             currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
         }
-        // Обновляем все стрелы
-        for (int i = 0; i < MAX_ARROWS; i++){
+        for (int i = 0; i < MAX_ARROWS; i++) {
             UpdateArrow(&arrows[i], deltaTime);
             CheckArrowCollisionWithNPCs(&arrows[i], npcs, npcCount);
         }
 
         UpdateLightShader(light, shader, camera);
 
-        // Отрисовка всего в одном BeginDrawing/EndDrawing блоке
         BeginDrawing();
             ClearBackground(BLUE);
 
-            // Отрисовка UI: кнопка и текст
+            // --- UI: Camera Toggle Button ---
             DrawRectangleRec(buttonRect, LIGHTGRAY);
             DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
 
-            // 3D-режим с текущей камерой
+            // --- 3D Drawing ---
             BeginMode3D(camera);
+                // Draw NPCs
                 for (int i = 0; i < npcCount; i++) {
                     DrawNPC(&npcs[i]);
                 }
                 DrawFPS(10, 10);
                 BeginShaderMode(shader);
-                    DrawModel(bgModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
+                    DrawModel(bgModel, (Vector3){ 0.0f, 1.0f, -1.0f }, 1.0f, WHITE);
                 EndShaderMode();
 
-                // Отрисовка башни
+                // Draw Tower
                 DrawCube(tower.position, 2.0f, 5.0f, 2.0f, DARKGRAY);
 
-                // Отрисовка стрел
+                // Draw Arrows
                 for (int i = 0; i < MAX_ARROWS; i++) {
                     DrawArrow(arrows[i]);
                 }
 
-                // Отрисовка световой сферы
+                // Draw Light Sphere
                 DrawSphere(light.position, 2.0f, WHITE);
+
+                // --- Draw the Gold Cube (Shop Button) via shop module ---
+                DrawGoldCube(goldCubePos, goldCubeSize);
             EndMode3D();
 
+            // --- On-Screen Text ---
             DrawText("Press the button to toggle camera", 20, 70, 20, DARKGRAY);
+            DrawText("Click the Gold Cube to open shop", 20, 100, 20, DARKGRAY);
+
+            // --- Render Shop UI if Open ---
+            if (shopMenuOpen) {
+                RenderShopSidebar(interFont, screenWidth, screenHeight,
+                                  &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel);
+            }
+
             DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
             DrawFPS(100, 100);
         EndDrawing();
     }
 
-    CloseWindow();
+    // --- Clean Up ---
     UnloadModel(bgModel);
     UnloadNPCModel();
     UnloadShader(shader);
+    UnloadFont(interFont);
+    CloseWindow();
 
     return 0;
 }

@@ -1,73 +1,221 @@
-#include <includs.h>
+#include "shop.h"
+#include "raylib.h"
+#include <math.h>
 
-#define MAX_WALL_HP 2000
-#define MAX_DEFENDER_LEVEL 3
+// --- Collision and Cube Drawing Functions ---
 
-const int wallHpUpgradeCost = 200;
-const int defenderUpgradeCost = 500;
+bool CheckGoldCubeCollision(Ray ray, Vector3 cubePos, float cubeSize) {
+    BoundingBox cubeBox = {
+        (Vector3){ cubePos.x - cubeSize/2, cubePos.y - cubeSize/2, cubePos.z - cubeSize/2 },
+        (Vector3){ cubePos.x + cubeSize/2, cubePos.y + cubeSize/2, cubePos.z + cubeSize/2 }
+    };
 
-void DrawShopUI(void) {
-    if (!shopOpen) return;
+    float tmin = (cubeBox.min.x - ray.position.x) / ray.direction.x;
+    float tmax = (cubeBox.max.x - ray.position.x) / ray.direction.x;
+    if (tmin > tmax) { float temp = tmin; tmin = tmax; tmax = temp; }
 
-    int screenWidth = GetScreenWidth();
-    int screenHeight = GetScreenHeight();
+    float tymin = (cubeBox.min.y - ray.position.y) / ray.direction.y;
+    float tymax = (cubeBox.max.y - ray.position.y) / ray.direction.y;
+    if (tymin > tymax) { float temp = tymin; tymin = tymax; tymax = temp; }
+    if ((tmin > tymax) || (tymin > tmax)) return false;
+    if (tymin > tmin) tmin = tymin;
+    if (tymax < tmax) tmax = tymax;
 
-    // Размеры и позиции UI элементов
-    int shopPanelWidth = screenWidth * 0.23f; // Ширина панели магазина (23% от ширины экрана)
-    int shopPanelX = screenWidth - shopPanelWidth; // Позиция панели магазина (справа)
-    int textOffsetX = 20; // Отступ текста от края панели
-    int textOffsetY = 20; // Отступ текста сверху
-    int buttonHeight = 30; // Высота кнопки// Расстояние между элементами
+    float tzmin = (cubeBox.min.z - ray.position.z) / ray.direction.z;
+    float tzmax = (cubeBox.max.z - ray.position.z) / ray.direction.z;
+    if (tzmin > tzmax) { float temp = tzmin; tzmin = tzmax; tzmax = temp; }
+    if ((tmin > tzmax) || (tzmin > tmax)) return false;
 
-    // Рисуем фон магазина
-    DrawRectangle(shopPanelX, 0, shopPanelWidth, screenHeight, Fade(DARKGRAY, 0.8f));
-
-    // Рисуем заголовок магазина
-    DrawText("SHOP", shopPanelX + textOffsetX, textOffsetY, 30, WHITE);
-
-    // Рисуем количество денег
-    DrawText(TextFormat("Money: %d", money), shopPanelX + textOffsetX, textOffsetY + 40, 20, GOLD);
-
-    // Рисуем информацию о здоровье стены
-    DrawText(TextFormat("Wall HP: %d / %d", wallHP, MAX_WALL_HP), shopPanelX + textOffsetX, textOffsetY + 80, 20, WHITE);
-
-    // Рисуем кнопку улучшения стены
-    if (wallHP < MAX_WALL_HP && money >= wallHpUpgradeCost) {
-        Rectangle upgradeWallButton = {
-            shopPanelX + textOffsetX,
-            textOffsetY + 110,
-            shopPanelWidth - 2 * textOffsetX,
-            buttonHeight
-        };
-
-        if (CheckCollisionPointRec(GetMousePosition(), upgradeWallButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            wallHP += 200;
-            if (wallHP > MAX_WALL_HP) wallHP = MAX_WALL_HP;
-            money -= wallHpUpgradeCost;
-        }
-        DrawText(TextFormat("Upgrade (+200 HP) - %d$", wallHpUpgradeCost), upgradeWallButton.x, upgradeWallButton.y, 20, (money >= wallHpUpgradeCost) ? GREEN : RED);
-    }
-
-    // Рисуем информацию об уровне защитника
-    DrawText(TextFormat("Defender Level: %d / %d", defenderLevel, MAX_DEFENDER_LEVEL), shopPanelX + textOffsetX, textOffsetY + 150, 20, WHITE);
-
-    // Рисуем кнопку улучшения защитника
-    if (defenderLevel < MAX_DEFENDER_LEVEL && money >= defenderUpgradeCost) {
-        Rectangle upgradeDefenderButton = {
-            shopPanelX + textOffsetX,
-            textOffsetY + 180,
-            shopPanelWidth - 2 * textOffsetX,
-            buttonHeight
-        };
-
-        if (CheckCollisionPointRec(GetMousePosition(), upgradeDefenderButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            defenderLevel++;
-            money -= defenderUpgradeCost;
-        }
-        DrawText(TextFormat("Upgrade Defender - %d$", defenderUpgradeCost), upgradeDefenderButton.x, upgradeDefenderButton.y, 20, (money >= defenderUpgradeCost) ? GREEN : RED);
-    }
+    return true;
 }
 
-void ToggleShop(void) {
-    if (IsKeyPressed(KEY_B)) shopOpen = !shopOpen;
+void DrawGoldCube(Vector3 cubePos, float cubeSize) {
+    // Make the gold cube invisible while still allowing collisions
+    (void)cubePos;
+    (void)cubeSize;
+    // Do nothing here
+}
+
+// --- Existing Shop UI Code ---
+
+void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight, 
+                       int* money, int* wallHP, int maxWallHP, 
+                       int* defenderLevel, int maxDefenderLevel)
+{
+    // --- Layout Constants ---
+    int sidebarWidth    = 320;  // Increased width
+    int sidebarHeight   = 420;  // Increased height to accommodate new button
+    int headerHeight    = 50;
+    int buttonHeight    = 60;   
+    int buttonWidth     = 300;  // Widen the buttons a bit
+    float fontSize      = 24.0f;
+    float letterSpacing = 3.0f; 
+    float labelPriceGap = 120.0f; 
+
+    // --- Calculate Sidebar Position to Center Vertically ---
+    int sidebarX = screenWidth - sidebarWidth;
+    int sidebarY = (screenHeight - sidebarHeight) / 2;
+
+    // --- Colors ---
+    Color sideBarColor    = (Color){  20,  20,  20, 220 };
+    Color sideBarHeaderBg = (Color){  40,  40,  40, 255 };
+    Color textWhite       = RAYWHITE;
+    Color goldColor       = (Color){ 255, 215,   0, 255 };
+    Color buttonBgColor   = DARKGRAY;  
+    Color textGreen       = GREEN;
+    Color textRed         = RED;
+
+    // --- Draw Sidebar Background & Header ---
+    DrawRectangle(sidebarX, sidebarY, sidebarWidth, sidebarHeight, sideBarColor);
+    DrawRectangle(sidebarX, sidebarY, sidebarWidth, headerHeight, sideBarHeaderBg);
+    DrawTextEx(
+        interFont,
+        "SHOP",
+        (Vector2){ (float)(sidebarX + 20), (float)(sidebarY + 10) },
+        28,  
+        letterSpacing,
+        textWhite
+    );
+
+    // --- Display Money ---
+    DrawTextEx(
+        interFont,
+        TextFormat("Money: %d", *money),
+        (Vector2){ (float)(sidebarX + 20), (float)(sidebarY + 70) },
+        fontSize,
+        letterSpacing,
+        goldColor
+    );
+
+    // --- UPGRADE WALL BUTTON ---
+    {
+        Rectangle upgradeWallRect = {
+            (float)(sidebarX + 10),
+            (float)(sidebarY + 120),
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+        DrawRectangleRec(upgradeWallRect, buttonBgColor);
+
+        const char* upgradeWallLabel = "Upgrade Wall";
+        const char* upgradeWallPrice = " -200$";
+
+        Vector2 labelPos = {
+            upgradeWallRect.x + 10,
+            upgradeWallRect.y + (buttonHeight - fontSize) / 2
+        };
+        DrawTextEx(interFont, upgradeWallLabel, labelPos, fontSize, letterSpacing, textGreen);
+
+        Vector2 labelSize = MeasureTextEx(interFont, upgradeWallLabel, fontSize, letterSpacing);
+        Vector2 pricePos = {
+            labelPos.x + 47.0f + labelSize.x + labelPriceGap,
+            labelPos.y
+        };
+        DrawTextEx(interFont, upgradeWallPrice, pricePos, fontSize, letterSpacing, textRed);
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 mPos = GetMousePosition();
+            if (CheckCollisionPointRec(mPos, upgradeWallRect))
+            {
+                if (*money >= 200)
+                {
+                    *money -= 200;
+                    *wallHP += 2000;
+                    if (*wallHP > maxWallHP) *wallHP = maxWallHP;
+                }
+            }
+        }
+    }
+
+    // --- Defender Level Display ---
+    DrawTextEx(
+        interFont,
+        TextFormat("Defender Level: %d / %d", *defenderLevel, maxDefenderLevel),
+        (Vector2){ (float)(sidebarX + 20), (float)(sidebarY + 200) },
+        fontSize,
+        letterSpacing,
+        textWhite
+    );
+
+    // --- UPGRADE DEFENDER BUTTON ---
+    {
+        Rectangle upgradeDefRect = {
+            (float)(sidebarX + 10),
+            (float)(sidebarY + 240),
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+        DrawRectangleRec(upgradeDefRect, buttonBgColor);
+
+        const char* upgradeDefLabel = "Add Defender";
+        const char* upgradeDefPrice = " -500$";
+
+        Vector2 labelPos = {
+            upgradeDefRect.x + 10,
+            upgradeDefRect.y + (buttonHeight - fontSize) / 2
+        };
+        DrawTextEx(interFont, upgradeDefLabel, labelPos, fontSize, letterSpacing, textGreen);
+
+        Vector2 labelSize = MeasureTextEx(interFont, upgradeDefLabel, fontSize, letterSpacing);
+        Vector2 pricePos = {
+            labelPos.x + 55.0f + labelSize.x + labelPriceGap,
+            labelPos.y
+        };
+        DrawTextEx(interFont, upgradeDefPrice, pricePos, fontSize, letterSpacing, textRed);
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 mPos = GetMousePosition();
+            if (CheckCollisionPointRec(mPos, upgradeDefRect))
+            {
+                if (*money >= 500 && *defenderLevel < maxDefenderLevel)
+                {
+                    *money -= 500;
+                    (*defenderLevel)++;
+                }
+            }
+        }
+    }
+
+    // --- FIX WALL BUTTON (New) ---
+    {
+        Rectangle fixWallRect = {
+            (float)(sidebarX + 10),
+            (float)(sidebarY + 320),  // Below the "Add Defender" button
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+        DrawRectangleRec(fixWallRect, buttonBgColor);
+
+        const char* fixWallLabel = "Fix Wall";
+        const char* fixWallPrice = " -100$";
+
+        Vector2 labelPos = {
+            fixWallRect.x + 10,
+            fixWallRect.y + (buttonHeight - fontSize) / 2
+        };
+        DrawTextEx(interFont, fixWallLabel, labelPos, fontSize, letterSpacing, textGreen);
+
+        Vector2 labelSize = MeasureTextEx(interFont, fixWallLabel, fontSize, letterSpacing);
+        Vector2 pricePos = {
+            labelPos.x  -18.0f + labelSize.x + labelPriceGap,
+            labelPos.y
+        };
+        DrawTextEx(interFont, fixWallPrice, pricePos, fontSize, letterSpacing, textRed);
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 mPos = GetMousePosition();
+            if (CheckCollisionPointRec(mPos, fixWallRect))
+            {
+                if (*money >= 100)
+                {
+                    *money -= 100;
+                    *wallHP += 500;
+                    if (*wallHP > maxWallHP) *wallHP = maxWallHP;
+                }
+            }
+        }
+    }
 }
