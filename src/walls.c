@@ -5,9 +5,9 @@
 
 Wall wall = {
     .position = {
-        (wallX1 - GRID_SIZE / 2) * CELL_SIZE + CELL_SIZE / 2,  // Позиция стены по X
-        WALL_HEIGHT / 2,  // Позиция по Y
-        (wallZ - GRID_SIZE / 2) * CELL_SIZE + CELL_SIZE / 2   // Позиция стены по Z
+        (wallX1 - GRID_SIZE / 2) * CELL_SIZE + CELL_SIZE / 2,
+        WALL_HEIGHT / 2,
+        (wallZ - GRID_SIZE / 2) * CELL_SIZE + CELL_SIZE / 2
     },
     .width = WALL_WIDTH,
     .height = WALL_HEIGHT,
@@ -16,7 +16,7 @@ Wall wall = {
 };
 //для теста отрисовка стены при конечной версии очистить
 void DrawWalls(void) {
-    if (wallDestroyed == 1) { // Если стена не разрушена, рисуем её
+    if (wallDestroyed == 1) {
         DrawCube(wall.position, wall.width, wall.height, wall.depth, GRAY);
         DrawCubeWires(wall.position, wall.width, wall.height, wall.depth, DARKGRAY);
     }
@@ -42,8 +42,8 @@ bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius) {
     };
 
     if (CheckCollisionBoxes(npcBox, wallBox)) {
-        return true; // Если столкновение с стеной, возвращаем true
+        return true;
     }
-    return false; // Если нет столкновения, возвращаем false
+    return false;
 }
 

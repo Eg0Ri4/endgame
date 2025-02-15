@@ -1,12 +1,9 @@
 #include "includs.h"
-#include <math.h>
 
-// Функция сглаженной интерполяции (ускорение в начале и замедление в конце)
 float EaseInOutQuad(float t) {
     return t < 0.5f ? 2.0f * t * t : 1.0f - powf(-2.0f * t + 2.0f, 2) / 2.0f;
 }
 
-// Функция линейной интерполяции для векторов
 Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
     Vector3 result;
     result.x = start.x + (end.x - start.x) * t;
@@ -16,14 +13,14 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
-    const int screenWidth = 1440, screenHeight = 980;
+    const int screenWidth = 1920, screenHeight = 1080;
     InitWindow(screenWidth, screenHeight, "Game");
 
     bool isFullscreen = false;
 
     Font interFont = LoadFont("resources/fonts/Inter-Regular.ttf");
     SetTextureFilter(interFont.texture, TEXTURE_FILTER_BILINEAR);
-    // Инициализация камер
+
     Camera3D cam1 = { 0 };
     cam1.position = (Vector3){ 80.0f, 55.0f, 70.0f };
     cam1.target   = (Vector3){ -15.0f, 0.0f, 10.0f };
@@ -35,24 +32,23 @@ int main(void) {
     cam2.position = (Vector3){ 55.0f, 55.0f, 0.0f };
     cam2.target   = (Vector3){ -17.0f, 0.0f, -15.0f };
     cam2.up       = (Vector3){ 0.0f, 1.0f, 0.0f };
-    cam2.fovy     = 75.0f;  // Немного увеличенный FOV для более естественного эффекта
+    cam2.fovy     = 75.0f;
     cam2.projection = CAMERA_PERSPECTIVE;
 
-    // Начинаем с первой камеры
     Camera3D camera = cam1;
-    // Переменные для анимации камеры
-    bool animating = false;   // Флаг, что анимация запущена
-    bool camState = false;    // false: cam1 активна, true: cam2 активна
-    float t = 0.0f;           // Прогресс анимации (от 0 до 1)
-    const float transitionDuration = 1.2f; // Длительность перехода увеличена для плавности
 
-    // Кнопка на экране
+    bool animating = false;
+    bool camState = false;
+    float t = 0.0f;
+    const float transitionDuration = 1.2f;
+
     Rectangle buttonRect = { 20, 20, 200, 40 };
+    Rectangle pauseButton = { 20, 70, 200, 40 };
+    bool paused = false;
 
-    // Загрузка модели замка
     Model bgModel = LoadModel("resources/models/Yamok_bez_steni.glb");
     Model wallModel = LoadModel("resources/models/new_new_wall.glb");
-    // Загрузка шейдера освещения
+
     Shader shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
     for (int i = 0; i < bgModel.materialCount; i++) {
         bgModel.materials[i].shader = shader;
@@ -74,7 +70,6 @@ int main(void) {
 
     SetTargetFPS(300);
 
-    // --- Shop / Menu variables ---
     bool shopMenuOpen = false;
     int wallHP = 440, maxWallHP = 2000;
     int defenderLevel = 0, maxDefenderLevel = 3;
@@ -82,7 +77,7 @@ int main(void) {
     Vector3 goldCubePos = { -8.0f, 8.0f, -25.0f };
     float goldCubeSize = 42.0f;
 
-    // MOB Waves (dummy)
+    // MOB Waves
     int currentNPCCount = 5;
     float spawnTimer = 0.0f;
     float miniWaveTimer = 0.0f;
@@ -92,8 +87,6 @@ int main(void) {
 
     while (!WindowShouldClose()) {
 
-        wawes(&spawnTimer, &miniWaveTimer, &waveTimer, waveInterval, &waveNumber, &currentNPCCount);
-
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();
         mousePoint.x *= (float)screenWidth / GetRenderWidth();
@@ -102,22 +95,24 @@ int main(void) {
         if (IsKeyPressed(KEY_F)) {
             isFullscreen = !isFullscreen;
             if (isFullscreen) {
-                ToggleFullscreen(); // Включение полноэкранного режима
+                ToggleFullscreen();
             } else {
-                SetWindowSize(screenWidth, screenHeight); // Возвращение к оконному режиму
+                SetWindowSize(screenWidth, screenHeight);
             }
         }
 
-        // --- Shop Toggle Logic via Gold Cube Click ---
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, pauseButton)) {
+            paused = !paused;
+        }
+
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             if (shopMenuOpen) {
-                // If shop is open, clicking outside the shop sidebar closes it.
                 Rectangle shopRect = { (float)(screenWidth - 300), 0, 300, screenHeight };
                 if (!CheckCollisionPointRec(mousePoint, shopRect)) {
                     shopMenuOpen = false;
                 }
-            } else {
-                // If shop is closed, check for click on gold cube.
+            } 
+            else {
                 Ray ray = GetMouseRay(mousePoint, camera);
                 if (CheckGoldCubeCollision(ray, goldCubePos, goldCubeSize)) {
                     shopMenuOpen = true;
@@ -125,13 +120,13 @@ int main(void) {
             }
         }
 
-        // При нажатии на кнопку запускаем анимацию переключения камеры
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)){
+        // Обработка переключения камеры по кнопке
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)) {
             animating = true;
             t = 0.0f;
-            camState = !camState;  // Переключаем состояние: если cam1, то переходим на cam2, и наоборот
+            camState = !camState;
         }
-        // Если анимация запущена, обновляем прогресс
+
         if (animating) {
             t += deltaTime / transitionDuration;
             if (t >= 1.0f) { t = 1.0f; animating = false; }
@@ -149,73 +144,114 @@ int main(void) {
             }
         }
 
-        HideCursor();
-        Vector2 cursorPos = GetMousePosition();
-        if(wallDestroyed){
-        // Fire an arrow every few seconds
-        for (int i = 0; i < towerCount; ++i){
-            towers[i].arrowTimer += GetFrameTime();
-            if (towers[i].arrowTimer >= FIRERATE) {  
-                towers[i].arrowTimer = 0.0f;  // Reset timer
-                LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
-                currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
+        if (!paused) {
+            // Обновление волн
+            wawes(&spawnTimer, &miniWaveTimer, &waveTimer, waveInterval, &waveNumber, &currentNPCCount);
+
+            HideCursor();
+            
+            if (wallDestroyed) {
+                // Обновление логики башен и стрел
+                for (int i = 0; i < towerCount; ++i) {
+                    towers[i].arrowTimer += GetFrameTime();
+                    if (towers[i].arrowTimer >= FIRERATE) {  
+                        towers[i].arrowTimer = 0.0f;  // Сброс таймера
+                        LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
+                        currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
+                    }
+                }
             }
-        }
-        }
-        // Обновляем все стрелы
-        for (int i = 0; i < MAX_ARROWS; i++){
-            UpdateArrow(&arrows[i], deltaTime);
-            CheckArrowCollisionWithNPCs(&arrows[i], npcs, npcCount);
+            // Обновляем все стрелы
+            for (int i = 0; i < MAX_ARROWS; i++){
+                UpdateArrow(&arrows[i], deltaTime);
+                CheckArrowCollisionWithNPCs(&arrows[i], npcs, npcCount);
+            }
+
+            UpdateLightShader(light, shader, camera);
         }
 
-        UpdateLightShader(light, shader, camera);
-
-        // Отрисовка всего в одном BeginDrawing/EndDrawing блоке
         BeginDrawing();
             ClearBackground(BLUE);
 
-
-            // 3D-режим с текущей камерой
             BeginMode3D(camera);
                 for (int i = 0; i < npcCount; i++) {
                     DrawNPC(&npcs[i]);
                 }
-                for (int i = 0; i < towerCount; i++) {
-                    //DrawTower(&towers[i]);
-                }
+                // for (int i = 0; i < towerCount; i++) {
+                //     //DrawTower(&towers[i]);
+                // }
                 DrawFPS(10, 10);
                 BeginShaderMode(shader);
-                    if(wallDestroyed) DrawModel(wallModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
+                    if (wallDestroyed)
+                        DrawModel(wallModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
                     DrawModel(bgModel, (Vector3){0.0f, 1.0f, 0.0f}, 1.0f, WHITE);
                 EndShaderMode();
 
-                if(wallDestroyed){
+                if (wallDestroyed) {
                     // Отрисовка стрел
                     for (int i = 0; i < MAX_ARROWS; i++) {
                         DrawArrow(arrows[i]);
                     }
-                    for (int i = 0; i < towerCount; ++i){
+                    for (int i = 0; i < towerCount; ++i) {
                         DrawTower(&towers[i]);
-                        //DrawSphere(towers[i].position, 1.0f, RED);
                     }
                 }
-                // Отрисовка световой сферы
-                // --- Draw the Gold Cube (Shop Button) via shop module ---
+
                 DrawGoldCube(goldCubePos, goldCubeSize);
-                //DrawSphere(light.position, 2.0f, WHITE);
             EndMode3D();
-             // Отрисовка UI: кнопка и текст
-             DrawRectangleRec(buttonRect, LIGHTGRAY);
-             DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
+
+            DrawRectangleRec(buttonRect, LIGHTGRAY);
+            DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
+            DrawRectangleRec(pauseButton, LIGHTGRAY); // Отрисовка кнопки паузы
+            DrawText(paused ? "Unpause" : "Pause", pauseButton.x + 10, pauseButton.y + 10, 20, BLACK);
+
+            {
+                int hpBarWidth = 500;
+                int hpBarHeight = 50;
+                int hpBarX = screenWidth / 2 - hpBarWidth / 2;
+                int hpBarY = 20;
+
+                float roundness = 0.3f;
+                int segments = 10;
+    
+                Rectangle barRect = { (float)hpBarX, (float)hpBarY, (float)hpBarWidth, (float)hpBarHeight };
+    
+                DrawRectangleRounded(barRect, roundness, segments, DARKGRAY);
+    
+
+                float hpPercent = (float)wall.health / 2000.0f;
+                int filledWidth = (int)(hpBarWidth * hpPercent);
+                Rectangle filledRect = { (float)hpBarX, (float)hpBarY, (float)filledWidth, (float)hpBarHeight };
+    
+                Color darkMaroon = (Color){100, 0, 0, 255}; // можно настроить по вкусу
+                DrawRectangleRounded(filledRect, roundness, segments, darkMaroon);
+
+                DrawRectangleRoundedLines(barRect, roundness, segments, BLACK);
+    
+                char hpText[50];
+                sprintf(hpText, "HP: %d / %d", wall.health, 2000);
+                int textSize = 20;
+                int textWidth = MeasureText(hpText, textSize);
+                DrawText(hpText, hpBarX + (hpBarWidth - textWidth) / 2, hpBarY + (hpBarHeight - textSize) / 2, textSize, WHITE);
+            }
+
+            DrawRectangleRec(buttonRect, LIGHTGRAY);
+            DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
+            DrawRectangleRec(pauseButton, LIGHTGRAY); // << CHANGE >> Отрисовка кнопки паузы
+            DrawText(paused ? "Unpause" : "Pause", pauseButton.x + 10, pauseButton.y + 10, 20, BLACK); // << CHANGE >>
+
             if (shopMenuOpen) {
                 RenderShopSidebar(interFont, screenWidth, screenHeight,
                     &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel, 
                     &towers, &towerCount);
             }
-
-            DrawText("Press the button to toggle camera", 20, 70, 20, DARKGRAY);
+            Vector2 cursorPos = GetMousePosition();
             DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
-            DrawFPS(100, 100);
+            DrawFPS(100, 100);/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            if (paused) {
+                DrawText("PAUSED", screenWidth/2 - MeasureText("PAUSED", 40)/2, screenHeight/2 - 20, 40, RED);
+            }
         EndDrawing();
     }
     
