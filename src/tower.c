@@ -7,7 +7,7 @@ Tower CreateTower(Vector3 position) {
     Tower tower;
     tower.position = position;
     tower.isShooting = false;
-    tower.arrowTimer = (float)rand() / 1.0;
+    tower.arrowTimer = (float)rand() / FIRERATE;
     return tower;
 }
 
