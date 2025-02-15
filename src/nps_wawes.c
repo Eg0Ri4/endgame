@@ -13,7 +13,7 @@ void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float wave
             SpawnRandomNPC();
             spawned++;
         }
-        *spawnTimer = 10.0f;  // Ждем вторую мини-волну
+        *spawnTimer = 10.0f;
     }
 
     if (*miniWaveTimer >= 5.0f && *miniWaveTimer < 10.0f) { 
@@ -22,15 +22,14 @@ void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float wave
             SpawnRandomNPC();
             spawned++;
         }
-        *miniWaveTimer = 10.0f;  // Блокируем повторный спавн
+        *miniWaveTimer = 10.0f;
     }
 
-    // Если 60 секунд прошли, запускаем следующую волну
     if (*waveTimer >= waveInterval) {
-        *waveTimer = 0.0f;  // Сброс таймера волны
-        *spawnTimer = 0.0f; // Готовность к новой мини-волне
+        *waveTimer = 0.0f;
+        *spawnTimer = 0.0f;
         *miniWaveTimer = 0.0f;
-        *waveNumber += 1;   // Увеличение номера волны
+        *waveNumber += 1;
         if ((*currentNPCCount * 3 + 1) < MAX_NPC)
             *currentNPCCount += 10; // Увеличение количества NPC в мини-волне
         printf("Новая волна: %d, количество NPC: %d\n", *waveNumber, *currentNPCCount * 2);

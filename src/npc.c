@@ -20,7 +20,7 @@ void InitNPC(NPC *npc, Vector3 spawnPos) {
     npc->position = spawnPos;
     npc->position.y = 1.5f;
     npc->state = MOVING;
-    npc->disappearTimer = 40.0f;
+    npc->disappearTimer = 45.0f;
     npc->hp = 100;
     npc->damage = 10;
     npc->attackTimer = NPC_ATTACK_INTERVAL;
@@ -68,7 +68,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
         } 
         else {
             npc->currentFrame = deathFrameCount - 1;
-            money += 2;
+            money += 15;
             printf("%d",money);
             RemoveNPC(npc);
             return;

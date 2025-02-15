@@ -19,6 +19,8 @@ int main(void) {
     const int screenWidth = 1440, screenHeight = 980;
     InitWindow(screenWidth, screenHeight, "Game");
 
+    bool isFullscreen = false;
+
     Font interFont = LoadFont("resources/fonts/Inter-Regular.ttf");
     SetTextureFilter(interFont.texture, TEXTURE_FILTER_BILINEAR);
     // Инициализация камер
@@ -81,11 +83,11 @@ int main(void) {
     float goldCubeSize = 42.0f;
 
     // MOB Waves (dummy)
-    int currentNPCCount = 10;
+    int currentNPCCount = 5;
     float spawnTimer = 0.0f;
     float miniWaveTimer = 0.0f;
     float waveTimer = 0.0f;
-    float waveInterval = 45.0f;
+    float waveInterval = 40.0f;
     int waveNumber = 1; 
 
     while (!WindowShouldClose()) {
@@ -94,6 +96,17 @@ int main(void) {
 
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();
+        mousePoint.x *= (float)screenWidth / GetRenderWidth();
+        mousePoint.y *= (float)screenHeight / GetRenderHeight();
+
+        if (IsKeyPressed(KEY_F)) {
+            isFullscreen = !isFullscreen;
+            if (isFullscreen) {
+                ToggleFullscreen(); // Включение полноэкранного режима
+            } else {
+                SetWindowSize(screenWidth, screenHeight); // Возвращение к оконному режиму
+            }
+        }
 
         // --- Shop Toggle Logic via Gold Cube Click ---
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
