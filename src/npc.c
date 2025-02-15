@@ -85,7 +85,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
     npc->frameCounter += 60.0f * deltaTime;
     npc->position.z -= WALK_SPEED * deltaTime;
 
-    if (npc->position.z <= -15.0f) {
+    if (npc->position.z <= -5.0f) {
         TriggerGameOver();
         return;
     }
