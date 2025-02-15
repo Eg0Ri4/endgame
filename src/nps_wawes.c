@@ -32,7 +32,7 @@ void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float wave
         *miniWaveTimer = 0.0f;
         *waveNumber += 1;   // Увеличение номера волны
         if ((*currentNPCCount * 3 + 1) < MAX_NPC)
-            *currentNPCCount += 50; // Увеличение количества NPC в мини-волне
+            *currentNPCCount += 10; // Увеличение количества NPC в мини-волне
         printf("Новая волна: %d, количество NPC: %d\n", *waveNumber, *currentNPCCount * 2);
     }
 

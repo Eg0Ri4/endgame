@@ -19,6 +19,8 @@ int main(void) {
     const int screenWidth = 2560, screenHeight = 1440;
     InitWindow(screenWidth, screenHeight, "Game");
 
+    Font interFont = LoadFont("resources/fonts/Inter-Regular.ttf");
+    SetTextureFilter(interFont.texture, TEXTURE_FILTER_BILINEAR);
     // Инициализация камер
     Camera3D cam1 = { 0 };
     cam1.position = (Vector3){ 80.0f, 55.0f, 70.0f };
@@ -70,8 +72,17 @@ int main(void) {
 
     SetTargetFPS(300);
 
+    // --- Shop / Menu variables ---
+    bool shopMenuOpen = false;
+    int money = 1000;
+    int wallHP = 440, maxWallHP = 2000;
+    int defenderLevel = 0, maxDefenderLevel = 3;
+
+    Vector3 goldCubePos = { -8.0f, 8.0f, -25.0f };
+    float goldCubeSize = 42.0f;
+
     // MOB Waves (dummy)
-    int currentNPCCount = 50;
+    int currentNPCCount = 10;
     float spawnTimer = 0.0f;
     float miniWaveTimer = 0.0f;
     float waveTimer = 0.0f;
@@ -80,11 +91,27 @@ int main(void) {
 
     while (!WindowShouldClose()) {
 
-        ToggleShop();
         wawes(&spawnTimer, &miniWaveTimer, &waveTimer, waveInterval, &waveNumber, &currentNPCCount);
 
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();
+
+        // --- Shop Toggle Logic via Gold Cube Click ---
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            if (shopMenuOpen) {
+                // If shop is open, clicking outside the shop sidebar closes it.
+                Rectangle shopRect = { (float)(screenWidth - 300), 0, 300, screenHeight };
+                if (!CheckCollisionPointRec(mousePoint, shopRect)) {
+                    shopMenuOpen = false;
+                }
+            } else {
+                // If shop is closed, check for click on gold cube.
+                Ray ray = GetMouseRay(mousePoint, camera);
+                if (CheckGoldCubeCollision(ray, goldCubePos, goldCubeSize)) {
+                    shopMenuOpen = true;
+                }
+            }
+        }
 
         if (IsKeyDown(KEY_SPACE)){
             AddTower(&towers, &towerCount, (Vector3){towerCount*2-34 + ((towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
@@ -169,19 +196,27 @@ int main(void) {
                     }
                 }
                 // Отрисовка световой сферы
+                // --- Draw the Gold Cube (Shop Button) via shop module ---
+                DrawGoldCube(goldCubePos, goldCubeSize);
                 //DrawSphere(light.position, 2.0f, WHITE);
             EndMode3D();
+
+            if (shopMenuOpen) {
+                RenderShopSidebar(interFont, screenWidth, screenHeight,
+                                  &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel);
+            }
 
             DrawText("Press the button to toggle camera", 20, 70, 20, DARKGRAY);
             DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
             DrawFPS(100, 100);
         EndDrawing();
     }
-
+    
     CloseWindow();
     UnloadModel(bgModel);
     UnloadNPCModel();
     UnloadShader(shader);
+    UnloadFont(interFont);
 
     return 0;
 }

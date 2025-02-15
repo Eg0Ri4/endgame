@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "prototypes.h"
-#include <shop.h>
+#include "shop.h"
 #include <global.h>
 #include "light.h"
 // screen size
