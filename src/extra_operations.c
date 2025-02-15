@@ -22,6 +22,8 @@ Texture2D load_texture(char *file_path)
     return results;
 }
 
+#include "raylib.h"
+
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 450
 
@@ -37,10 +39,11 @@ void MainMenu(void)
     } Button;
 
     Button buttons[3] = {
-        {{SCREEN_WIDTH / 2 - 100, 150, 200, 50}, DARKBLUE, "Play"},
-        {{SCREEN_WIDTH / 2 - 100, 220, 200, 50}, DARKGRAY, "Settings"},
-        {{SCREEN_WIDTH / 2 - 100, 290, 200, 50}, DARKBROWN, "Credits"}};
-    Texture2D background = LoadTexture("src/background.png");
+        {{SCREEN_WIDTH / 2 - 100, 230, 200, 50}, (Color){139, 69, 19, 180}, "Play"},       
+        {{SCREEN_WIDTH / 2 - 100, 300, 200, 50}, (Color){105, 105, 105, 180}, "Settings"}, 
+        {{SCREEN_WIDTH / 2 - 100, 380, 200, 50}, (Color){92, 64, 51, 180}, "Credits"}};   
+
+    Texture2D background = LoadTexture("resources/images/castle.png");
     SetTargetFPS(60);
 
     while (!WindowShouldClose())
@@ -51,47 +54,45 @@ void MainMenu(void)
         {
             if (CheckCollisionPointRec(mousePoint, buttons[i].bounds))
             {
-                buttons[i].color = LIGHTGRAY;
+                buttons[i].color.a = 220; 
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                 {
                     WindowShouldClose();
-
                     UnloadTexture(background);
                     return;
                 }
             }
             else
             {
-                buttons[i].color = (i == 0) ? DARKBLUE : (i == 1) ? DARKGRAY
-                                                                  : DARKBROWN;
+                buttons[i].color.a = 180; 
             }
         }
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        // Масштабування по ширині екрану
-        float scaleX = (float)SCREEN_WIDTH / background.width;
-        float scaleY = (float)SCREEN_HEIGHT / background.height;
 
-        // Вибираємо менший масштаб, щоб зберегти пропорції
-        float scale = (scaleX < scaleY) ? scaleX : scaleY;
-
-        DrawTextureEx(background, (Vector2){0, 0}, 0.0f, scale, (Color){255, 255, 255, 255});
-        DrawText("CASTLE CLASH", SCREEN_WIDTH / 2 - 120, 100, 30, BLACK);
+        // Масштабування фону по екрану
+        DrawTexturePro(background, 
+            (Rectangle){0, 0, background.width, background.height}, 
+            (Rectangle){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, 
+            (Vector2){0, 0}, 0.0f, WHITE);
 
         for (int i = 0; i < 3; i++)
         {
-            DrawRectangleRec(buttons[i].bounds, buttons[i].color);
-            DrawText(buttons[i].text, buttons[i].bounds.x + 60, buttons[i].bounds.y + 15, 20, WHITE);
+            DrawRectangleRounded(buttons[i].bounds, 0.3f, 10, buttons[i].color);
+
+            // Вирівнювання тексту по центру кнопки
+            int textWidth = MeasureText(buttons[i].text, 20);
+            DrawText(buttons[i].text, buttons[i].bounds.x + (buttons[i].bounds.width - textWidth) / 2,
+                     buttons[i].bounds.y + (buttons[i].bounds.height - 20) / 2, 20, WHITE);
         }
 
         EndDrawing();
     }
 
-    CloseWindow();
+    UnloadTexture(background);
+    
 }
-
-
 void GameOverScreen(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Game Over");
@@ -133,52 +134,3 @@ void GameOverScreen(void)
     UnloadTexture(background);
     CloseWindow();
 } 
-#define FRAME_COUNT 7
-
-void PlayAnimationGame()
-{
-   
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-    InitWindow(screenWidth, screenHeight, "Sprite Animation Function");
-
-   
-    Texture2D knight = LoadTexture("resources/images/Run.png");  // Заміни на свою текстуру
-
-    
-    Vector2 position = { screenWidth / 2 - (knight.width / FRAME_COUNT) / 2, 
-                         screenHeight / 2 - knight.height / 2 };
-    Rectangle frameRec = { 0.0f, 0.0f, (float)knight.width / FRAME_COUNT, (float)knight.height };
-
-    int currentFrame = 0;
-    int framesCounter = 0;
-    int framesSpeed = 15;  
-
-    SetTargetFPS(60);
-
-    
-    while (!WindowShouldClose())
-    {
-       
-        framesCounter++;
-        if (framesCounter >= (60 / framesSpeed))
-        {
-            framesCounter = 0;
-            currentFrame++;
-
-            if (currentFrame >= FRAME_COUNT) currentFrame = 0;
-
-            frameRec.x = (float)currentFrame * frameRec.width;
-        }
-
-       
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawTextureRec(knight, frameRec, position, WHITE);
-        EndDrawing();
-    }
-
- 
-    UnloadTexture(knight);
-    CloseWindow();
-}
