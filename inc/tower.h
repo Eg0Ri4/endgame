@@ -10,6 +10,7 @@ typedef struct {
     Vector3 position;
     bool isShooting;
     float arrowTimer;
+    int currentFrame;
     float frameCounter;
 } Tower;
 
@@ -29,5 +30,6 @@ void DrawArrow(Arrow arrow);
 void CheckArrowCollisionWithNPCs(Arrow* arrow, NPC* npcs, int npcCount);  // Use NPC directly now
 void AddTower(Tower **towers, int *towerCount, Vector3 position);
 void LoadTowerModel(void);
+void DrawTower(Tower *tower);
 
 #endif // TOWER_H
