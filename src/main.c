@@ -16,6 +16,7 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
+    MainMenu();
     const int screenWidth = 1440, screenHeight = 980;
     InitWindow(screenWidth, screenHeight, "Game");
 
@@ -89,7 +90,6 @@ int main(void) {
     int waveNumber = 1; 
 
     while (!WindowShouldClose()) {
-
         wawes(&spawnTimer, &miniWaveTimer, &waveTimer, waveInterval, &waveNumber, &currentNPCCount);
 
         float deltaTime = GetFrameTime();
@@ -156,7 +156,9 @@ int main(void) {
         }
 
         UpdateLightShader(light, shader, camera);
+        
 
+        
         // Отрисовка всего в одном BeginDrawing/EndDrawing блоке
         BeginDrawing();
             ClearBackground(BLUE);
@@ -205,12 +207,11 @@ int main(void) {
             DrawFPS(100, 100);
         EndDrawing();
     }
-    
     CloseWindow();
     UnloadModel(bgModel);
     UnloadNPCModel();
     UnloadShader(shader);
-    UnloadFont(interFont);
+    UnloadFont(interFont); 
 
     return 0;
 }

@@ -109,23 +109,24 @@ void LoadTowerModel(void) {
         printf("Помилка завантаження моделі NPC!\n");
         return;
     }
-
+    TowerAnimations = LoadModelAnimations("resources/models/mag.glb", &TowerAnimCount);
+    FrameCount = TowerAnimations[1].frameCount;
+    
     Matrix rotationX = MatrixRotateX(DEG2RAD * 90.0f);  // Change from -90 to 90
     Matrix rotationY = MatrixRotateY(DEG2RAD * 180.0f);
     Matrix rotationZ = MatrixRotateZ(DEG2RAD * 180.0f);
     Matrix transform = MatrixMultiply(rotationZ, MatrixMultiply(rotationY, rotationX));
     towerModel.transform = transform;
-    TowerAnimations = LoadModelAnimations("resources/models/mag.glb", &TowerAnimCount);
-    FrameCount = TowerAnimations[0].frameCount;
+
 }
 
 void DrawTower(Tower *tower) {
     /*if (tower->isShooting) {
         tower->frameCounter += GetFrameTime() * 10.0f;  // ✅ Increase animation speed
         tower->currentFrame = (int)fmod(tower->frameCounter, FrameCount);
-        UpdateModelAnimation(towerModel, TowerAnimations[0], tower->currentFrame);
+        UpdateModelAnimation(towerModel, TowerAnimations[1], tower->currentFrame);
     }
     tower->currentFrame = (int)fmod(tower->frameCounter, FrameCount);
-    UpdateModelAnimation(towerModel, TowerAnimations[0], tower->currentFrame);*/
+    UpdateModelAnimation(towerModel, TowerAnimations[1], tower->currentFrame);*/
     DrawModel(towerModel, tower->position, 0.025f, WHITE);
 }
