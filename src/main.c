@@ -16,7 +16,7 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
-    const int screenWidth = 2560, screenHeight = 1440;
+    const int screenWidth = 1440, screenHeight = 980;
     InitWindow(screenWidth, screenHeight, "Game");
 
     Font interFont = LoadFont("resources/fonts/Inter-Regular.ttf");
@@ -112,11 +112,6 @@ int main(void) {
             }
         }
 
-        if (IsKeyDown(KEY_SPACE)){
-            AddTower(&towers, &towerCount, (Vector3){towerCount*2-34 + ((towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
-            printf("ther are %i towers", towerCount);
-        }
-
         // При нажатии на кнопку запускаем анимацию переключения камеры
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)){
             animating = true;
@@ -166,9 +161,6 @@ int main(void) {
         BeginDrawing();
             ClearBackground(BLUE);
 
-            // Отрисовка UI: кнопка и текст
-            DrawRectangleRec(buttonRect, LIGHTGRAY);
-            DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
 
             // 3D-режим с текущей камерой
             BeginMode3D(camera);
@@ -199,10 +191,13 @@ int main(void) {
                 DrawGoldCube(goldCubePos, goldCubeSize);
                 //DrawSphere(light.position, 2.0f, WHITE);
             EndMode3D();
-
+             // Отрисовка UI: кнопка и текст
+             DrawRectangleRec(buttonRect, LIGHTGRAY);
+             DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
             if (shopMenuOpen) {
                 RenderShopSidebar(interFont, screenWidth, screenHeight,
-                                  &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel);
+                    &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel, 
+                    &towers, &towerCount);
             }
 
             DrawText("Press the button to toggle camera", 20, 70, 20, DARKGRAY);

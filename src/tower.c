@@ -32,7 +32,7 @@ void LaunchArrow(Tower* tower, Arrow* arrows, NPC* npcs, int npcCount) {
     if (arrow == NULL) return;
 
     tower->currentFrame += 60.0f;
-    float minDistance = 50.0f;
+    float minDistance = 70.0f;
     NPC* nearestNPC = NULL;
 
         for (int i = 0; i < npcCount; i++) {

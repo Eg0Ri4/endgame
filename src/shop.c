@@ -1,7 +1,4 @@
 #include "includs.h"
-#include "shop.h"
-#include "raylib.h"
-#include <math.h>
 
 // --- Collision and Cube Drawing Functions ---
 
@@ -41,7 +38,8 @@ void DrawGoldCube(Vector3 cubePos, float cubeSize) {
 
 void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight, 
                        int* money, int* wallHP, int maxWallHP, 
-                       int* defenderLevel, int maxDefenderLevel)
+                       int* defenderLevel, int maxDefenderLevel,
+                       Tower **towers, int *towerCount)
 {
     // --- Layout Constants ---
     int sidebarWidth    = 320;  // Increased width
@@ -170,11 +168,13 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeDefRect))
             {
-                if (*money >= 500 && *defenderLevel < maxDefenderLevel)
+                if (*money >= 500 && *defenderLevel < MAX_SHOOTERS)
                 {
                     *money -= 500;
+                    AddTower(towers, towerCount, (Vector3){*towerCount*2-34 + ((*towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
+            
                     (*defenderLevel)++;
-                }
+                
             }
         }
     }
@@ -219,4 +219,5 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             }
         }
     }
+}
 }

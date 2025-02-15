@@ -6,12 +6,12 @@
 #include <stdio.h>
 #include <math.h>
 #include "prototypes.h"
-#include "shop.h"
 #include <global.h>
 #include "light.h"
 // screen size
 #include "npc.h"
 #include "tower.h"
+#include "shop.h"
 
 #define GRID_SIZE 20
 #define CELL_SIZE 1.0f
