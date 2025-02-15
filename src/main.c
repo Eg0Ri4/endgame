@@ -46,12 +46,15 @@ int main(void) {
     Rectangle buttonRect = { 20, 20, 200, 40 };
 
     // Загрузка модели замка
-    Model bgModel = LoadModel("resources/models/3D-G.glb");
-
+    Model bgModel = LoadModel("resources/models/Yamok_bez_steni.glb");
+    Model wallModel = LoadModel("resources/models/new_new_wall.glb");
     // Загрузка шейдера освещения
     Shader shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
     for (int i = 0; i < bgModel.materialCount; i++) {
         bgModel.materials[i].shader = shader;
+    }
+    for (int i = 0; i < wallModel.materialCount; i++) {
+        wallModel.materials[i].shader = shader;
     }
 
     Light light = CreateLight((Vector3){ -63.0f, 90.0f, 135.0f }, (Color){ 255, 214, 170, 255}, 0.5f);
@@ -59,7 +62,8 @@ int main(void) {
     Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
 
     LoadNPCModel();
-    Tower tower = CreateTower((Vector3){ -5.0f, 8.0f, 5.0f }); // Позиция башни
+    Tower *towers = NULL;
+    int towerCount = 0;
     Arrow arrows[MAX_ARROWS] = { 0 };
     int currentArrowIndex = 0;
 
@@ -76,6 +80,11 @@ int main(void) {
 
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();
+
+        if (IsKeyDown(KEY_SPACE)){
+            AddTower(&towers, &towerCount, (Vector3){towerCount*2-34 + ((towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
+            printf("ther are %i towers", towerCount);
+        }
 
         // При нажатии на кнопку запускаем анимацию переключения камеры
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)){
@@ -104,13 +113,15 @@ int main(void) {
         HideCursor();
         Vector2 cursorPos = GetMousePosition();
 
-        // Логика стрельбы: каждые 0.5 сек запускаем стрелу
-        static float arrowTimer = 1.0f;
-        arrowTimer += deltaTime;
-        if (arrowTimer >= 0.5f){
-            arrowTimer = 0.0f;
-            LaunchArrow(&tower, &arrows[currentArrowIndex], npcs, npcCount);
-            currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
+        // Fire an arrow every few seconds
+        for (int i = 0; i < towerCount; ++i){
+            towers[i].arrowTimer += GetFrameTime();
+            printf("fuck this %f\n", towers[i].arrowTimer);
+            if (towers[i].arrowTimer >= FIRERATE) {  
+                towers[i].arrowTimer = 0.0f;  // Reset timer
+                LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
+                currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
+            }
         }
         // Обновляем все стрелы
         for (int i = 0; i < MAX_ARROWS; i++){
@@ -133,21 +144,25 @@ int main(void) {
                 for (int i = 0; i < npcCount; i++) {
                     DrawNPC(&npcs[i]);
                 }
+                for (int i = 0; i < towerCount; i++) {
+                    //DrawTower(&towers[i]);
+                }
                 DrawFPS(10, 10);
                 BeginShaderMode(shader);
-                    DrawModel(bgModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
+                    DrawModel(wallModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
+                    DrawModel(bgModel, (Vector3){0.0f, 1.0f, 0.0f}, 1.0f, WHITE);
                 EndShaderMode();
 
-                // Отрисовка башни
-                DrawCube(tower.position, 2.0f, 5.0f, 2.0f, DARKGRAY);
 
                 // Отрисовка стрел
                 for (int i = 0; i < MAX_ARROWS; i++) {
                     DrawArrow(arrows[i]);
                 }
-
+                for (int i = 0; i < towerCount; ++i){
+                    DrawSphere(towers[i].position, 1.0f, RED);
+                }
                 // Отрисовка световой сферы
-                DrawSphere(light.position, 2.0f, WHITE);
+                //DrawSphere(light.position, 2.0f, WHITE);
             EndMode3D();
 
             DrawText("Press the button to toggle camera", 20, 70, 20, DARKGRAY);
