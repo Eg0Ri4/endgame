@@ -12,7 +12,7 @@ int main(void) {
     camera.projection = CAMERA_PERSPECTIVE;
 
     // Load the castle model
-    Model bgModel = LoadModel("resources/models/3D-G.glb");
+    Model bgModel = LoadModel("resources/models/ZAMOK2.glb");
 
     // Load lighting shader
     Shader shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
@@ -22,14 +22,19 @@ int main(void) {
         bgModel.materials[i].shader = shader;
     }
 
-    // Create a light
-    Light light = CreateLight((Vector3){ -63.0f, 90.0f, 135.0f }, (Color){ 255, 214, 170, 255}, 0.5f);
-
+    // Create a lights
+    int numActiveLights = 0;  // Number of lights currently in use
+    Light lights[MAX_LIGHTS]; 
+    AddLight(lights, &numActiveLights, (Vector3){ -63.0f, 90.0f, 135.0f }, (Color){ 255, 214, 170, 255 }, 0.5f);
+    AddLight(lights, &numActiveLights, (Vector3){ -07.0f, 12.0f, -22.0f }, (Color){234,35,0, 255 }, 0.2f);
+    AddLight(lights, &numActiveLights, (Vector3){ -04.0f, 08.0f, 23.0f }, (Color){234,35,0, 255 }, 0.3f);
 
     Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
 
     LoadNPCModel();
-    Tower tower = CreateTower((Vector3){ -5.0f, 8.0f, 5.0f }); // Tower position
+    Tower *towers = NULL;
+    int towerCount = 0;
+    //AddTower(&towers, &towerCount, (Vector3){ -5.0f, 8.0f, 5.0f });
     Arrow arrows[MAX_ARROWS] = { 0 };
     int currentArrowIndex = 0;
     
@@ -39,6 +44,7 @@ int main(void) {
     float spawnTimer = 20.1f;
     float spawnInterval = 10.0f;
 
+
 while (!WindowShouldClose()) {
         ToggleShop();
         wawes(&spawnTimer, spawnInterval);
@@ -46,43 +52,46 @@ while (!WindowShouldClose()) {
         HideCursor();
         Vector2 cursorPos = GetMousePosition();
 
+        if (IsKeyDown(KEY_SPACE)){
+            AddTower(&towers, &towerCount, (Vector3){towerCount*2-34 + ((towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
+            printf("ther are %i towers", towerCount);
+        }
         // Fire an arrow every few seconds
-        static float arrowTimer = 1.0f;
-        arrowTimer += GetFrameTime();
-        if (arrowTimer >= 0.5f) {  
-            arrowTimer = 0.0f;
-            LaunchArrow(&tower, &arrows[currentArrowIndex], npcs, npcCount);
-            currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
+        for (int i = 0; i < towerCount; ++i){
+            towers[i].arrowTimer += GetFrameTime();
+            printf("fuck this %d\n", towers[i].arrowTimer);
+            if (towers[i].arrowTimer >= 0.5f) {  
+                towers[i].arrowTimer = 0.0f;  // Reset timer
+                LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
+                currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
+            }
         }
         // Update all arrows
         for (int i = 0; i < MAX_ARROWS; i++) {
             UpdateArrow(&arrows[i], GetFrameTime());
             CheckArrowCollisionWithNPCs(&arrows[i], npcs, npcCount);
         }
-
-        UpdateLightShader(light, shader, camera);  // Update shader with light data
+        UpdateLightShader(lights, numActiveLights, shader, camera);  // Update shader with light data
         // Rendering
         BeginDrawing();
         ClearBackground(BLUE);
         BeginMode3D(camera);
-            for (int i = 0; i < npcCount; i++) {
-                DrawNPC(&npcs[i]);
-            }
-            
             BeginShaderMode(shader);
-            DrawModel(bgModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
+                for (int i = 0; i < npcCount; i++) {
+                    DrawNPC(&npcs[i]);
+                }
+                DrawModel(bgModel, (Vector3){0.0f, 1.0f, -1.0f}, 1.0f, WHITE);
             EndShaderMode();
 
-            // Draw the tower
-            DrawCube(tower.position, 2.0f, 5.0f, 2.0f, DARKGRAY);
-
-            // Draw all arrows
             for (int i = 0; i < MAX_ARROWS; i++) {
                 DrawArrow(arrows[i]);
             }
-
+            for (int i = 0; i < towerCount; ++i){
+                DrawSphere(towers[i].position, 1.0f, RED);
+            }
+            // Draw all arrows
             // Draw light sphere
-            DrawSphere(light.position, 2.0f, WHITE);
+            //DrawSphere(lights[0].position, 2.0f, WHITE);
 
             DrawFPS(20, 20);
         EndMode3D();

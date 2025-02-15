@@ -11,8 +11,8 @@ typedef struct {
     float attackTimer;
 } NPC;
 
-#define MAX_NPC 350
-#define NPC_count 20
+#define MAX_NPC 200
+#define NPC_count 10
 #define NPC_ATTACK_INTERVAL 2.0f
 
 extern NPC npcs[MAX_NPC];  // 👈 Declare the array as extern

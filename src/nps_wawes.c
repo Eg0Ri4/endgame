@@ -5,7 +5,7 @@ void wawes(float *spawnTimer, float spawnInterval){
     // Обновление таймера спавна
     *spawnTimer += deltaTime;
     // Проверка, пришло ли время спавна новой волны
-    if (*spawnTimer >= spawnInterval) {
+    if (*spawnTimer >= spawnInterval && npcCount == 0) {
         int spawned = 0;
         while ((npcCount + NPC_count) < MAX_NPC && spawned < NPC_count) {
             SpawnRandomNPC();

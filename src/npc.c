@@ -1,5 +1,5 @@
 #include "includs.h"
-
+Shader npcShader = { 0 };  
 
 NPC npcs[MAX_NPC];
 int npcCount = 0;
@@ -21,10 +21,17 @@ void LoadNPCModel(void) {
     if (npcModel.meshCount == 0) {
         printf("Ошибка загрузки модели NPC!\n");
     }
-    Texture2D npcTexture = LoadTexture("resources/shaders/chevalier.bmp");
 
-    // Применяем текстуру к материалу модели
+    // ✅ Load shader only ONCE if not already loaded
+    if (npcShader.id == 0) { 
+        npcShader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
+    }
+
+    Texture2D npcTexture = LoadTexture("resources/shaders/chevalier.bmp");
     npcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = npcTexture;
+    for (int i = 0; i < npcModel.materialCount; i++) {
+        npcModel.materials[i].shader = npcShader;
+    }
 }
 
 
@@ -124,15 +131,22 @@ void UnloadNPCModel(void) {
 }
 
 void RemoveNPC(NPC *npc) {
+    int index = -1;
+
+    // Find the NPC in the array
     for (int i = 0; i < npcCount; i++) {
-        if (&npcs[i] == npc) {  // Find NPC in the array
-            // Shift remaining NPCs down
-            for (int j = i; j < npcCount - 1; j++) {
-                npcs[j] = npcs[j + 1];
-            }
-            npcCount--;  // Reduce NPC count
-            printf("NPC removed from game!\n");
-            return;
+        if (&npcs[i] == npc) {
+            index = i;
+            break;
         }
     }
+
+    if (index == -1) return;  // NPC not found
+
+    // Shift NPCs down in the array
+    for (int i = index; i < npcCount - 1; i++) {
+        npcs[i] = npcs[i + 1];  
+    }
+
+    npcCount--;  // Reduce NPC count
 }

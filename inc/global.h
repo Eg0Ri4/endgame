@@ -6,3 +6,4 @@ extern int money;
 extern int wallHP;
 extern int defenderLevel;
 extern bool shopOpen;
+

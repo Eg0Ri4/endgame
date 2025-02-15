@@ -1,42 +1,49 @@
 #include "includs.h"
-#include <float.h>  // For FLT_MAX
-#include <stdlib.h>
-#include <stdio.h>
 // Create a tower at a given position
 Tower CreateTower(Vector3 position) {
     Tower tower;
     tower.position = position;
     tower.isShooting = false;
+    tower.arrowTimer = 1.0f;
     return tower;
 }
 
 // Function to launch the arrow towards the nearest NPC
-// Function to launch the arrow towards the nearest NPC
-void LaunchArrow(Tower* tower, Arrow* arrow, NPC* npcs, int npcCount) {
-    if (!arrow->isActive) {
-        float minDistance = FLT_MAX;
-        NPC* nearestNPC = NULL;
+void LaunchArrow(Tower* tower, Arrow* arrows, NPC* npcs, int npcCount) {
+    Arrow* arrow = NULL;
 
-        // Find the nearest NPC within range
-        for (int i = 0; i < npcCount; i++) {
-            if (npcs[i].state == MOVING) {
-                float distance = Vector3Distance(tower->position, npcs[i].position);
-                if (distance < minDistance && distance < 70.0f) {  // Check if within range (e.g., 30 units)
-                    minDistance = distance;
-                    nearestNPC = &npcs[i];
-                }
+    // Find an inactive arrow to reuse
+    for (int i = 0; i < MAX_ARROWS; i++) {
+        if (!arrows[i].isActive) {
+            arrow = &arrows[i];
+            break;
+        }
+    }
+
+    // No available arrows, return
+    if (arrow == NULL) return;
+
+    float minDistance = FLT_MAX;
+    NPC* nearestNPC = NULL;
+
+    // Find the nearest NPC within range
+    for (int i = 0; i < npcCount; i++) {
+        if (npcs[i].state == MOVING) {
+            float distance = Vector3Distance(tower->position, npcs[i].position);
+            if (distance < minDistance && distance < 70.0f) {  // Check if within range
+                minDistance = distance;
+                nearestNPC = &npcs[i];
             }
         }
+    }
 
-        // Launch arrow towards the nearest NPC
-        if (nearestNPC != NULL) {
-            arrow->position = tower->position;
-            Vector3 direction = Vector3Normalize(Vector3Subtract(nearestNPC->position, tower->position));
-            arrow->velocity = Vector3Scale(direction, 50.0f);  // Adjust speed here
-            arrow->damage = 100;  // Arrow damage can be adjusted
-            arrow->isActive = true;
-            arrow->velocity = Vector3Scale(direction, 150.0f);
-        }
+    // Launch arrow towards the nearest NPC
+    if (nearestNPC != NULL) {
+        arrow->position = tower->position;
+        Vector3 direction = Vector3Normalize(Vector3Subtract(nearestNPC->position, tower->position));
+        arrow->velocity = Vector3Scale(direction, 150.0f);  // Adjust speed
+        arrow->damage = 20;
+        arrow->isActive = true;
     }
 }
 
@@ -44,14 +51,7 @@ void LaunchArrow(Tower* tower, Arrow* arrow, NPC* npcs, int npcCount) {
 // Update the arrow's position
 void UpdateArrow(Arrow* arrow, float deltaTime) {
     if (arrow->isActive) {
-        // Move arrow
         arrow->position = Vector3Add(arrow->position, Vector3Scale(arrow->velocity, deltaTime));
-
-        // ❌ Remove this check: arrows should disappear only on hit
-        // if (arrow->position.x > 20.0f || arrow->position.z > 20.0f ||
-        //     arrow->position.x < -20.0f || arrow->position.z < -20.0f) {
-        //     arrow->isActive = false;
-        // }
     }
 }
 
@@ -68,6 +68,8 @@ void CheckArrowCollisionWithNPCs(Arrow* arrow, NPC* npcs, int npcCount) {
                 printf("NPC hit! HP: %d\n", npcs[i].hp);  
                 arrow->isActive = false;  // Arrow disappears on hit
                 break;  // Stop checking other NPCs
+            }else if(arrow->position.y < 0){
+                arrow->isActive = false;
             }
         }
     }
@@ -79,4 +81,18 @@ void DrawArrow(Arrow arrow) {
     if (arrow.isActive) {
         DrawSphere(arrow.position, 0.5f, YELLOW);
     }
+}
+
+void AddTower(Tower **towers, int *towerCount, Vector3 position) {
+    if(*towerCount+1 >= MAX_SHOOTERS ) return;
+
+    (*towerCount)++;
+    Tower *temp = (Tower *)realloc(*towers, (*towerCount) * sizeof(Tower));
+    if (temp == NULL) {
+        printf("ERROR: Memory allocation failed! Exiting...\n");
+        free(*towers);
+        exit(1);
+    }
+    *towers = temp;
+    (*towers)[(*towerCount) - 1] = CreateTower(position);
 }

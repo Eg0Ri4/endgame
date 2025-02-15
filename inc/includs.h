@@ -1,13 +1,14 @@
 #pragma once
 
 #include <stdlib.h>
+#include <float.h> 
 #include "raylib.h"
 #include "raymath.h"
 #include <stdio.h>
 #include <math.h>
 #include "prototypes.h"
-#include <shop.h>
-#include <global.h>
+#include "shop.h"
+#include "global.h"
 #include "light.h"
 // screen size
 #include "npc.h"
