@@ -28,7 +28,7 @@
 #define WALK_SPEED 8.0f
 #define SHOOT_SPEED 8.0f
 
-void wawes(float *spawnTimer, float spawnInterval);
+void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float waveInterval, int *waveNumber, int *currentNPCCount);
 //void drawWall(void);
 bool CheckCollisionWithWall(Vector3 npcPos, float npcRadius);
 void DrawWalls(void);

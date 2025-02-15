@@ -127,5 +127,5 @@ void DrawTower(Tower *tower) {
     }
     tower->currentFrame = (int)fmod(tower->frameCounter, FrameCount);
     UpdateModelAnimation(towerModel, TowerAnimations[0], tower->currentFrame);*/
-    DrawModel(towerModel, tower->position, 0.02f, WHITE);
+    DrawModel(towerModel, tower->position, 0.025f, WHITE);
 }

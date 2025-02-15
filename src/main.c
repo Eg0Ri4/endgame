@@ -71,13 +71,17 @@ int main(void) {
     SetTargetFPS(300);
 
     // MOB Waves (dummy)
-    float spawnTimer = 20.1f;
-    float spawnInterval = 10.0f;
+    int currentNPCCount = 50;
+    float spawnTimer = 0.0f;
+    float miniWaveTimer = 0.0f;
+    float waveTimer = 0.0f;
+    float waveInterval = 30.0f;
+    int waveNumber = 1; 
 
     while (!WindowShouldClose()) {
 
         ToggleShop();
-        wawes(&spawnTimer, spawnInterval);
+        wawes(&spawnTimer, &miniWaveTimer, &waveTimer, waveInterval, &waveNumber, &currentNPCCount);
 
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();

@@ -9,12 +9,18 @@ int npcAnimCount = 0;
 int npcCurrentFrame = 0;
 float npcFrameCounter = 0.0f;
 
+void TriggerGameOver(void) {
+    printf("GAME OVER! NPC дошел до базы!\n");
+    CloseWindow();
+    exit(0);
+}
+
 void InitNPC(NPC *npc, Vector3 spawnPos) {
     npc->model = npcModel;   // Используем общую модель
     npc->position = spawnPos;
     npc->position.y = 1.5f;
     npc->state = MOVING;
-    npc->disappearTimer = 50.0f;
+    npc->disappearTimer = 40.0f;
     npc->hp = 100;
     npc->damage = 10;
     npc->attackTimer = NPC_ATTACK_INTERVAL;
@@ -36,7 +42,8 @@ void LoadNPCModel(void) {
     npcAnimations = LoadModelAnimations("resources/models/monster.glb", &npcAnimCount);
     if (npcAnimations == NULL || npcAnimCount == 0) {
         printf("Помилка завантаження анімації!\n");
-    } else {
+    }
+    else {
         printf("Завантажено %d анімацій (використовується тільки перша)\n", npcAnimCount);
     }
 }
@@ -49,6 +56,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
     // Обработка смерти NPC
     if (npc->hp <= 0 && npc->state != DEAD) {
         npc->state = DEAD;
+
         npc->frameCounter = 0.0f;
         npc->currentFrame = 0;
     }
@@ -60,6 +68,8 @@ void UpdateNPC(NPC *npc, float deltaTime) {
         } 
         else {
             npc->currentFrame = deathFrameCount - 1;
+            money += 2;
+            printf("%d",money);
             RemoveNPC(npc);
             return;
         }
@@ -74,6 +84,11 @@ void UpdateNPC(NPC *npc, float deltaTime) {
 
     npc->frameCounter += 60.0f * deltaTime;
     npc->position.z -= WALK_SPEED * deltaTime;
+
+    if (npc->position.z <= -15.0f) {
+        TriggerGameOver();
+        return;
+    }
 
     if (!CheckCollisionWithWall(npc->position, 0.5f)) {
         npc->state = MOVING;
@@ -124,7 +139,7 @@ void SpawnRandomNPC(void) {
 
     while (!isValidSpawn) {
         randomX = -36.0f + (rand() % 63);  //-40 70Генерация случайной X координаты
-        randomZ = 140.0f + (rand() % 8);  // 5Генерация случайной Z координаты
+        randomZ = 140.0f + (rand() % 12);  // 5Генерация случайной Z координаты
         
         isValidSpawn = true;
         for (int i = 0; i < npcCount; i++) {
