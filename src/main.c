@@ -13,10 +13,18 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
+    InitAudioDevice();
     MainMenu();
     const int screenWidth = 1920, screenHeight = 1080;
     InitWindow(screenWidth, screenHeight, "Game");
+    InitWindow(screenWidth, screenHeight, "Main Menu");
 
+    // Load music
+    Music Main_music = LoadMusicStream("resources/music/main.mp3");  
+    
+    // Play the music
+    PlayMusicStream(Main_music );
+    SetMusicVolume(Main_music, 1.0f);
 
     bool isFullscreen = false;
 
@@ -48,7 +56,7 @@ int main(void) {
     Rectangle pauseButton = { 20, 70, 200, 40 };
     bool paused = false;
 
-    Model bgModel = LoadModel("resources/models/Yamok_bez_steni.glb");
+    Model bgModel = LoadModel("resources/models/Castle_no_walls.glb");
     Model wallModel = LoadModel("resources/models/new_new_wall.glb");
 
     Shader shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
@@ -84,10 +92,11 @@ int main(void) {
     float spawnTimer = 0.0f;
     float miniWaveTimer = 0.0f;
     float waveTimer = 0.0f;
-    float waveInterval = 40.0f;
+    float waveInterval = 20.0f;
     int waveNumber = 1; 
 
     while (!WindowShouldClose()) {
+        UpdateMusicStream(Main_music);
 
         float deltaTime = GetFrameTime();
         Vector2 mousePoint = GetMousePosition();
@@ -123,7 +132,7 @@ int main(void) {
         }
 
         // Обработка переключения камеры по кнопке
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect) && !animating) {
             animating = true;
             t = 0.0f;
             camState = !camState;
@@ -256,8 +265,8 @@ int main(void) {
             }
         EndDrawing();
     }
-    
+    UnloadMusicStream(Main_music);
+    CloseAudioDevice();
     CloseWindow();
-
     return 0;
 }

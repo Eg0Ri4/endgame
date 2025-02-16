@@ -10,9 +10,8 @@ int npcCurrentFrame = 0;
 float npcFrameCounter = 0.0f;
 
 void TriggerGameOver(void) {
-    printf("GAME OVER! NPC дошел до базы!\n");
+    GameOverScreen();
     CloseWindow();
-    exit(0);
 }
 
 void InitNPC(NPC *npc, Vector3 spawnPos) {

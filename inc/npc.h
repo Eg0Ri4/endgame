@@ -31,4 +31,5 @@ void SpawnRandomNPC(void);
 void UnloadNPCModel(void);
 void LoadNPCModel(void);
 void RemoveNPC(NPC *npc);
+void GameOverScreen(void);
 

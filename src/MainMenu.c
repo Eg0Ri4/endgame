@@ -4,6 +4,13 @@ void MainMenu(void)
 {  
     InitWindow(screenWidth, screenHeight, "Main Menu");
 
+    // Load music
+    Music music = LoadMusicStream("resources/music/menu.mp3");  
+    
+    // Play the music
+    PlayMusicStream(music);
+    SetMusicVolume(music, 1.0f);
+
     typedef struct Button
     {
         Rectangle bounds;
@@ -23,7 +30,7 @@ void MainMenu(void)
     while (!WindowShouldClose())
     {
         Vector2 mousePoint = GetMousePosition();
-
+        UpdateMusicStream(music);
         for (int i = 0; i < 3; i++)
         {
             if (CheckCollisionPointRec(mousePoint, buttons[i].bounds))
@@ -63,6 +70,7 @@ void MainMenu(void)
 
         EndDrawing();
     }
+    UnloadMusicStream(music);
     UnloadTexture(background);
     
 }

@@ -4,12 +4,17 @@ const int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 
 void GameOverScreen(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Game Over");
-
     Texture2D background = LoadTexture("src/gameover.png");
-    SetTargetFPS(60);
 
+    // Load music
+    Music music = LoadMusicStream("resources/music/menu.mp3");  
+    
+    // Play the music
+    PlayMusicStream(music);
+    SetMusicVolume(music, 1.0f);
+    SetTargetFPS(60);
     while (!WindowShouldClose())
-    {
+    {   
         Vector2 mousePoint = GetMousePosition();
         Rectangle retryButton = {SCREEN_WIDTH / 2 - 100, 300, 200, 50};
         Color buttonColor = DARKGRAY;
@@ -38,7 +43,7 @@ void GameOverScreen(void) {
         
         EndDrawing();
     }
-    
+    UnloadMusicStream(music);
     UnloadTexture(background);
     CloseWindow();
 }

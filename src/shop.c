@@ -159,7 +159,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeDefRect))
             {
-                if ((*money >= 2000 && *defenderLevel < MAX_SHOOTERS) || *defenderLevel <= maxDefenderLevel)
+                if ((*money >= 2000 && *defenderLevel < MAX_SHOOTERS) && *defenderLevel <= maxDefenderLevel)
                 {
                     *money -= 2000;
                     (*defenderLevel)++;
