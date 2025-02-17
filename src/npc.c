@@ -30,7 +30,6 @@ void InitNPC(NPC *npc, Vector3 spawnPos) {
 
 void LoadNPCModel(void) {
     npcModel = LoadModel("resources/models/monster.glb"); 
-    npc_shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
 
     if (npcModel.meshCount == 0) {
         printf("Помилка завантаження моделі NPC!\n");
