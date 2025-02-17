@@ -88,7 +88,9 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         DrawRectangleRec(upgradeWallRect, buttonBgColor);
 
         const char* upgradeWallLabel = "Add Defender";
-        const char* upgradeWallPrice = " -300$";
+        static int cost = 300;
+        const char* upgradeWallPrice = TextFormat("-%i$", cost);
+        
 
         Vector2 labelPos = {
             upgradeWallRect.x + 10,
@@ -108,9 +110,10 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeWallRect))
             {
-                if (*money >= 300 && *towerCount <= MAX_SHOOTERS)
+                if (*money >= (int)cost && *towerCount < MAX_SHOOTERS)
                 {
-                    *money -= 300;
+                    *money -= (int)cost;
+                    cost *= 1.3;
                     *wallHP += 2000;
                     AddTower(towers, towerCount, (Vector3){*towerCount * 2 + ((*towerCount%2 == 0)? -34.0: 1.5),  6.5f, 16.0f });
                     
@@ -139,8 +142,9 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         DrawRectangleRec(upgradeDefRect, buttonBgColor);
 
         const char* upgradeDefLabel = "Upgrade";
-        const char* upgradeDefPrice = " -2000$";
-
+        static int defcost = 2000;
+        const char* upgradeDefPrice = TextFormat("-%i$", defcost);
+        
         Vector2 labelPos = {
             upgradeDefRect.x + 10,
             upgradeDefRect.y + (buttonHeight - fontSize) / 2
@@ -159,9 +163,10 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeDefRect))
             {
-                if ((*money >= 2000 && *defenderLevel < MAX_SHOOTERS) && *defenderLevel <= maxDefenderLevel)
+                if ((*money >= defcost && *defenderLevel < MAX_SHOOTERS) && *defenderLevel < maxDefenderLevel)
                 {
-                    *money -= 2000;
+                    *money -= defcost;
+                    defcost = defcost*2;
                     (*defenderLevel)++;
                 
             }
@@ -179,7 +184,8 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         DrawRectangleRec(fixWallRect, buttonBgColor);
 
         const char* fixWallLabel = "Fix Wall";
-        const char* fixWallPrice = " -100$";
+        static int wallcost = 100;
+        const char* fixWallPrice = TextFormat("-%i$", wallcost);
 
         Vector2 labelPos = {
             fixWallRect.x + 10,
@@ -199,9 +205,10 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, fixWallRect))
             {
-                if (*money >= 100 && wall.health < 2000)
+                if (*money >= wallcost && wall.health < 2000)
                 {
-                    *money -= 100;
+                    *money -= wallcost;
+                    wallcost *= 1.7;
                     wall.health += 500;
                     wallDestroyed = 1;
                     if (wall.health > maxWallHP) wall.health = maxWallHP;
