@@ -13,17 +13,20 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
-    InitAudioDevice();
-    MainMenu();
-    const int screenWidth = 1920, screenHeight = 1080;
+    const int screenWidth = 1280, screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Game");
-    InitWindow(screenWidth, screenHeight, "Main Menu");
+    InitAudioDevice();
+    if(MainMenu()){
+        CloseAudioDevice();
+        CloseWindow();
+        return 0;
+    }
 
     // Load music
     Music Main_music = LoadMusicStream("resources/music/main.mp3");  
     
     // Play the music
-    PlayMusicStream(Main_music );
+    PlayMusicStream(Main_music);
     SetMusicVolume(Main_music, 1.0f);
 
     bool isFullscreen = false;
@@ -52,8 +55,7 @@ int main(void) {
     float t = 0.0f;
     const float transitionDuration = 1.2f;
 
-    Rectangle buttonRect = { 20, 20, 200, 40 };
-    Rectangle pauseButton = { 20, 70, 200, 40 };
+    Rectangle pauseButton = { 20, 20, 200, 40 };
     bool paused = false;
 
     Model bgModel = LoadModel("resources/models/Castle_no_walls.glb");
@@ -121,21 +123,20 @@ int main(void) {
                 Rectangle shopRect = { (float)(screenWidth - 300), 0, 300, screenHeight };
                 if (!CheckCollisionPointRec(mousePoint, shopRect)) {
                     shopMenuOpen = false;
+                    animating = true;
+                    t = 0.0f;
+                    camState = !camState;
                 }
             } 
             else {
                 Ray ray = GetMouseRay(mousePoint, camera);
                 if (CheckGoldCubeCollision(ray, goldCubePos, goldCubeSize)) {
                     shopMenuOpen = true;
+                    animating = true;
+                    t = 0.0f;
+                    camState = !camState;
                 }
             }
-        }
-
-        // Обработка переключения камеры по кнопке
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect) && !animating) {
-            animating = true;
-            t = 0.0f;
-            camState = !camState;
         }
 
         if (animating) {
@@ -210,9 +211,6 @@ int main(void) {
 
                 DrawGoldCube(goldCubePos, goldCubeSize);
             EndMode3D();
-
-            DrawRectangleRec(buttonRect, LIGHTGRAY);
-            DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
             DrawRectangleRec(pauseButton, LIGHTGRAY); // Отрисовка кнопки паузы
             DrawText(paused ? "Unpause" : "Pause", pauseButton.x + 10, pauseButton.y + 10, 20, BLACK);
 
@@ -246,8 +244,6 @@ int main(void) {
                 DrawText(hpText, hpBarX + (hpBarWidth - textWidth) / 2, hpBarY + (hpBarHeight - textSize) / 2, textSize, WHITE);
             }
 
-            DrawRectangleRec(buttonRect, LIGHTGRAY);
-            DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
             DrawRectangleRec(pauseButton, LIGHTGRAY); // << CHANGE >> Отрисовка кнопки паузы
             DrawText(paused ? "Unpause" : "Pause", pauseButton.x + 10, pauseButton.y + 10, 20, BLACK); // << CHANGE >>
 
@@ -256,8 +252,7 @@ int main(void) {
                     &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel, 
                     &towers, &towerCount);
             }
-            Vector2 cursorPos = GetMousePosition();
-            DrawTextureEx(Cursor_texture, cursorPos, 0.0f, 0.1f, WHITE);
+            DrawTextureEx(Cursor_texture, GetMousePosition(), 0.0f, 0.1f, WHITE);
             //DrawFPS(100, 100);/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (paused) {

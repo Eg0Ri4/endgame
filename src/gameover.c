@@ -3,9 +3,8 @@
 const int SCREEN_WIDTH = 1920, SCREEN_HEIGHT = 1080;
 
 void GameOverScreen(void) {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Game Over");
     Texture2D background = LoadTexture("src/gameover.png");
-
+    Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
     // Load music
     Music music = LoadMusicStream("resources/music/menu.mp3");  
     
@@ -29,7 +28,7 @@ void GameOverScreen(void) {
         }
         
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(BLACK);
         
         // Масштабування фону
         float scaleX = (float)SCREEN_WIDTH / background.width;
@@ -40,11 +39,11 @@ void GameOverScreen(void) {
         DrawText("GAME OVER", SCREEN_WIDTH / 2 - 100, 150, 40, RED);
         DrawRectangleRec(retryButton, buttonColor);
         DrawText("quit", retryButton.x + 60, retryButton.y + 15, 20, WHITE);
-        
+        DrawTextureEx(Cursor_texture, mousePoint, 0.0f, 0.1f, WHITE);
         EndDrawing();
     }
+    UnloadTexture(Cursor_texture);
     UnloadMusicStream(music);
     UnloadTexture(background);
-    CloseWindow();
 }
 
