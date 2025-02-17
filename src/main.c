@@ -13,7 +13,7 @@ Vector3 LerpVector3(Vector3 start, Vector3 end, float t) {
 }
 
 int main(void) {
-    const int screenWidth = 1280, screenHeight = 720;
+    const int screenWidth = 1920, screenHeight = 1080;
     InitWindow(screenWidth, screenHeight, "Game");
     InitAudioDevice();
     if(MainMenu()){
@@ -27,7 +27,7 @@ int main(void) {
     
     // Play the music
     PlayMusicStream(Main_music);
-    SetMusicVolume(Main_music, 1.0f);
+    SetMusicVolume(Main_music, 0.2f);
 
     bool isFullscreen = false;
 

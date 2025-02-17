@@ -1,5 +1,5 @@
 #include "includs.h"
-const int screenWidth = 1280, screenHeight = 720;
+const int screenWidth = 1920, screenHeight = 1080;
 bool MainMenu(void)
 {  
     Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
@@ -8,7 +8,7 @@ bool MainMenu(void)
     
     // Play the music
     PlayMusicStream(music);
-    SetMusicVolume(music, 0.5f);
+    SetMusicVolume(music, 0.2f);
 
     typedef struct Button
     {
@@ -18,9 +18,9 @@ bool MainMenu(void)
     } Button;
 
     Button buttons[3] = {
-        {{screenWidth / 2 - 100, 330, 200, 50}, (Color){139, 69, 19, 180}, "Play"},       
-        {{screenWidth / 2 - 100, 400, 200, 50}, (Color){105, 105, 105, 180}, "Settings"}, 
-        {{screenWidth / 2 - 100, 480, 200, 50}, (Color){92, 64, 51, 180}, "Quit"}};   
+        {{screenWidth / 2 - 100, 530, 200, 50}, (Color){139, 69, 19, 180}, "Play"},       
+        {{screenWidth / 2 - 100, 600, 200, 50}, (Color){105, 105, 105, 180}, "Settings"}, 
+        {{screenWidth / 2 - 100, 680, 200, 50}, (Color){92, 64, 51, 180}, "Quit"}};   
 
     Texture2D background = LoadTexture("resources/images/castle.png");
     RenderTexture2D lastFrame = LoadRenderTexture(background.width, background.height);

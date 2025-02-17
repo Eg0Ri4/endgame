@@ -22,7 +22,7 @@ void InitNPC(NPC *npc, Vector3 spawnPos) {
     npc->state = MOVING;
     npc->disappearTimer = 45.0f;
     npc->hp = 100;
-    npc->damage = 10;
+    npc->damage = 1000;
     npc->attackTimer = NPC_ATTACK_INTERVAL;
     npc->frameCounter = 0.0f;
     npc->currentFrame = 0;
@@ -68,7 +68,7 @@ void UpdateNPC(NPC *npc, float deltaTime) {
         } 
         else {
             npc->currentFrame = deathFrameCount - 1;
-            money += 15;
+            money += 10;
             printf("%d",money);
             RemoveNPC(npc);
             return;
@@ -139,7 +139,7 @@ void SpawnRandomNPC(void) {
 
     while (!isValidSpawn) {
         randomX = -36.0f + (rand() % 63);
-        randomZ = 140.0f + (rand() % 12);
+        randomZ = 160.0f + (rand() % 12);
         
         isValidSpawn = true;
         for (int i = 0; i < npcCount; i++) {

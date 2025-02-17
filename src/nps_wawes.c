@@ -9,7 +9,7 @@ void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float wave
 
     if (*spawnTimer >= 0.0f && *spawnTimer < 5.0f) { 
         int spawned = 0;
-        while ((npcCount < MAX_NPC) && (spawned < *currentNPCCount) && spawned <= *currentNPCCount) {
+        while (((*currentNPCCount * 2 + 1) < MAX_NPC) && (spawned < *currentNPCCount)) {
             SpawnRandomNPC();
             spawned++;
         }
@@ -18,7 +18,7 @@ void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float wave
 
     if (*miniWaveTimer >= 5.0f && *miniWaveTimer < 10.0f) { 
         int spawned = 0;
-        while ((npcCount < MAX_NPC) && (spawned < *currentNPCCount) && spawned <= *currentNPCCount) {
+        while (((*currentNPCCount * 2 + 1) < MAX_NPC) && (spawned < *currentNPCCount)) {
             SpawnRandomNPC();
             spawned++;
         }
@@ -31,7 +31,7 @@ void wawes(float *spawnTimer, float *miniWaveTimer, float *waveTimer, float wave
         *miniWaveTimer = 0.0f;
         *waveNumber += 1;
         if ((*currentNPCCount * 3 + 1) < MAX_NPC)
-            *currentNPCCount += 5;
+            *currentNPCCount += 10;
         printf("Новая волна: %d, количество NPC: %d\n", *waveNumber, *currentNPCCount * 2);
     }
 
