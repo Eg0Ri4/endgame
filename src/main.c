@@ -55,7 +55,8 @@ int main(void) {
     float t = 0.0f;
     const float transitionDuration = 1.2f;
 
-    Rectangle pauseButton = { 20, 20, 200, 40 };
+    Rectangle buttonRect = { 20, 20, 200, 40 };
+    Rectangle pauseButton = { 20, 80, 200, 40 };
     bool paused = false;
 
     Model bgModel = LoadModel("resources/models/Castle_no_walls.glb");
@@ -83,14 +84,13 @@ int main(void) {
     Arrow arrows[MAX_ARROWS] = { 0 };
     int currentArrowIndex = 0;
 
-    SetTargetFPS(300);
+    SetTargetFPS(60);
 
     bool shopMenuOpen = false;
     int wallHP = 440, maxWallHP = 2000;
     int defenderLevel = 0, maxDefenderLevel = 100;
 
     Vector3 goldCubePos = { -8.0f, 8.0f, -25.0f };
-    Rectangle buttonRect = { 20, 20, 200, 40 };
     float goldCubeSize = 42.0f;
 
     // MOB Waves
@@ -133,9 +133,6 @@ int main(void) {
                 Ray ray = GetMouseRay(mousePoint, camera);
                 if (CheckGoldCubeCollision(ray, goldCubePos, goldCubeSize)) {
                     shopMenuOpen = true;
-                    animating = true;
-                    t = 0.0f;
-                    camState = !camState;
                 }
             }
         }
@@ -258,12 +255,12 @@ int main(void) {
                     &towers, &towerCount);
             }
             DrawRectangleRec(buttonRect, LIGHTGRAY);
-            DrawTextureEx(Cursor_texture, GetMousePosition(), 0.0f, 0.1f, WHITE);
             //DrawFPS(100, 100);/////////////////////////////////////////////////////////////////////////////////////////////////////////////
             if (paused) {
                 DrawText("PAUSED", screenWidth/2 - MeasureText("PAUSED", 40)/2, screenHeight/2 - 20, 40, RED);
             }
             DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
+            DrawTextureEx(Cursor_texture, GetMousePosition(), 0.0f, 0.1f, WHITE);
         EndDrawing();
     }
     UnloadMusicStream(Main_music);
