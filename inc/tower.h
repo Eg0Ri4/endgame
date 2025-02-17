@@ -2,7 +2,7 @@
 #define TOWER_H
 
 #include "includs.h"  // Include the full NPC definition here
-#define FIRERATE 0.6f
+#define FIRERATE 0.5f
 #define MAX_SHOOTERS 12
 #define MAX_ARROWS 100 
 

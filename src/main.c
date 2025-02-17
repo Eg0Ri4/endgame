@@ -169,7 +169,7 @@ int main(void) {
                 // Обновление логики башен и стрел
                 for (int i = 0; i < towerCount; ++i) {
                     towers[i].arrowTimer += GetFrameTime();
-                    if (towers[i].arrowTimer >= FIRERATE - (defenderLevel*0.2f)) {  
+                    if (towers[i].arrowTimer >= FIRERATE - (defenderLevel*0.2f/towerCount)) {  
                         towers[i].arrowTimer = 0.0f;  // Сброс таймера
                         LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
                         currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;

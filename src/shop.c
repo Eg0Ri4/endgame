@@ -110,7 +110,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeWallRect))
             {
-                if (*money >= (int)cost && *towerCount < MAX_SHOOTERS)
+                if (*money >= (int)cost && *towerCount < MAX_SHOOTERS - 1)
                 {
                     *money -= (int)cost;
                     cost *= 1.25;
