@@ -1,4 +1,8 @@
-#include "includs.h"
+#include "light.h"
+
+// Global list of lights
+static Light lights[MAX_LIGHTS];
+static int lightCount = 0;
 
 // Function to initialize a light
 Light CreateLight(Vector3 position, Color color, float power) {
@@ -9,30 +13,46 @@ Light CreateLight(Vector3 position, Color color, float power) {
     return light;
 }
 
-// Function to update light shader values
-void UpdateLightShader(Light light, Shader shader, Camera3D camera) {
-    int lightPosLoc = GetShaderLocation(shader, "lightPosition");
-    int lightColorLoc = GetShaderLocation(shader, "lightColor");
-    int lightPowerLoc = GetShaderLocation(shader, "lightPower");
-    int viewPosLoc = GetShaderLocation(shader, "viewPosition");
+// Function to add a light to the list
+void AddLight(Light light) {
+    if (lightCount < MAX_LIGHTS) {
+        lights[lightCount] = light;
+        lightCount++;
+    } else {
+        TraceLog(LOG_WARNING, "Maximum number of lights reached.");
+    }
+}
+
+// Function to update light shader values for all lights
+void UpdateLightShader(Shader shader, Camera3D camera) {
+    int lightCountLoc = GetShaderLocation(shader, "lightCount");
+    SetShaderValue(shader, lightCountLoc, &lightCount, SHADER_UNIFORM_INT);
 
     float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
-    float lightPos[3] = { light.position.x, light.position.y, light.position.z };
-    float lightCol[4] = {
-        (float)light.color.r / 255.0f,
-        (float)light.color.g / 255.0f,
-        (float)light.color.b / 255.0f,
-        1.0f
-    };
-
+    int viewPosLoc = GetShaderLocation(shader, "viewPosition");
     SetShaderValue(shader, viewPosLoc, cameraPos, SHADER_UNIFORM_VEC3);
-    SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
-    SetShaderValue(shader, lightColorLoc, lightCol, SHADER_UNIFORM_VEC4);
-    SetShaderValue(shader, lightPowerLoc, &light.power, SHADER_UNIFORM_FLOAT);
+
+    for (int i = 0; i < lightCount; i++) {
+        char lightPosName[32], lightColorName[32], lightPowerName[32];
+        sprintf(lightPosName, "lights[%d].position", i);
+        sprintf(lightColorName, "lights[%d].color", i);
+        sprintf(lightPowerName, "lights[%d].power", i);
+
+        int lightPosLoc = GetShaderLocation(shader, lightPosName);
+        int lightColorLoc = GetShaderLocation(shader, lightColorName);
+        int lightPowerLoc = GetShaderLocation(shader, lightPowerName);
+
+        float lightPos[3] = { lights[i].position.x, lights[i].position.y, lights[i].position.z };
+        float lightCol[4] = {
+            (float)lights[i].color.r / 255.0f,
+            (float)lights[i].color.g / 255.0f,
+            (float)lights[i].color.b / 255.0f,
+            1.0f
+        };
+
+        SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+        SetShaderValue(shader, lightColorLoc, lightCol, SHADER_UNIFORM_VEC4);
+        SetShaderValue(shader, lightPowerLoc, &lights[i].power, SHADER_UNIFORM_FLOAT);
+    }
 }
 
-// Function to draw light information
-void DrawLightInfo(Light light) {
-    DrawText(TextFormat("Light Position: (%.1f, %.1f, %.1f)", light.position.x, light.position.y, light.position.z), 10, 10, 20, WHITE);
-    DrawText(TextFormat("Light Power: %.1f", light.power), 10, 30, 20, WHITE);
-}

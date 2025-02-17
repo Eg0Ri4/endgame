@@ -8,6 +8,7 @@ ModelAnimation *npcAnimations = NULL;
 int npcAnimCount = 0;
 int npcCurrentFrame = 0;
 float npcFrameCounter = 0.0f;
+Shader npc_shader;
 
 void TriggerGameOver(void) {
     GameOverScreen();
@@ -29,7 +30,9 @@ void InitNPC(NPC *npc, Vector3 spawnPos) {
 }
 
 void LoadNPCModel(void) {
-    npcModel = LoadModel("resources/models/monster.glb");  
+    npcModel = LoadModel("resources/models/monster.glb"); 
+    npc_shader = LoadShader("resources/shaders/lighting.vs", "resources/shaders/lighting.fs");
+    npcModel.materials[0].shader = npc_shader;
 
     if (npcModel.meshCount == 0) {
         printf("Помилка завантаження моделі NPC!\n");

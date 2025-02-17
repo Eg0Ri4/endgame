@@ -69,7 +69,10 @@ int main(void) {
         wallModel.materials[i].shader = shader;
     }
 
-    Light light = CreateLight((Vector3){ -63.0f, 90.0f, 135.0f }, (Color){ 255, 214, 170, 255}, 0.5f);
+    // Lights
+    AddLight(CreateLight((Vector3){ -63.0f, 90.0f, 135.0f }, (Color){ 255, 214, 170, 255}, 0.5f));
+    AddLight(CreateLight((Vector3){ -5.0f, 8.0f, 2.0f }, (Color){224, 157, 55, 255}, 0.3f));
+    AddLight(CreateLight((Vector3){ -4.0f, 7.0f, 24.0f }, (Color){224, 157, 55, 255}, 0.3f));
 
     Texture2D Cursor_texture = load_texture("resources/images/cursor.png");
 
@@ -87,6 +90,7 @@ int main(void) {
     int defenderLevel = 0, maxDefenderLevel = 100;
 
     Vector3 goldCubePos = { -8.0f, 8.0f, -25.0f };
+    Rectangle buttonRect = { 20, 20, 200, 40 };
     float goldCubeSize = 42.0f;
 
     // MOB Waves
@@ -114,7 +118,7 @@ int main(void) {
             }
         }
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, pauseButton)) {
+        if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, pauseButton)) || IsKeyPressed(KEY_SPACE)){
             paused = !paused;
         }
 
@@ -123,9 +127,6 @@ int main(void) {
                 Rectangle shopRect = { (float)(screenWidth - 300), 0, 300, screenHeight };
                 if (!CheckCollisionPointRec(mousePoint, shopRect)) {
                     shopMenuOpen = false;
-                    animating = true;
-                    t = 0.0f;
-                    camState = !camState;
                 }
             } 
             else {
@@ -137,6 +138,11 @@ int main(void) {
                     camState = !camState;
                 }
             }
+        }
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePoint, buttonRect)) {
+            animating = true;
+            t = 0.0f;
+            camState = !camState;
         }
 
         if (animating) {
@@ -166,7 +172,7 @@ int main(void) {
                 // Обновление логики башен и стрел
                 for (int i = 0; i < towerCount; ++i) {
                     towers[i].arrowTimer += GetFrameTime();
-                    if (towers[i].arrowTimer >= FIRERATE - (defenderLevel*0.2f)) {  
+                    if (towers[i].arrowTimer >= FIRERATE - (defenderLevel*0.05f)) {  
                         towers[i].arrowTimer = 0.0f;  // Сброс таймера
                         LaunchArrow(&towers[i], &arrows[currentArrowIndex], npcs, npcCount);
                         currentArrowIndex = (currentArrowIndex + 1) % MAX_ARROWS;
@@ -178,8 +184,7 @@ int main(void) {
                 UpdateArrow(&arrows[i], deltaTime);
                 CheckArrowCollisionWithNPCs(&arrows[i], npcs, npcCount);
             }
-
-            UpdateLightShader(light, shader, camera);
+            UpdateLightShader(shader, camera);
         }
 
         BeginDrawing();
@@ -252,12 +257,13 @@ int main(void) {
                     &money, &wallHP, maxWallHP, &defenderLevel, maxDefenderLevel, 
                     &towers, &towerCount);
             }
+            DrawRectangleRec(buttonRect, LIGHTGRAY);
             DrawTextureEx(Cursor_texture, GetMousePosition(), 0.0f, 0.1f, WHITE);
             //DrawFPS(100, 100);/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
             if (paused) {
                 DrawText("PAUSED", screenWidth/2 - MeasureText("PAUSED", 40)/2, screenHeight/2 - 20, 40, RED);
             }
+            DrawText("Toggle Camera", buttonRect.x + 10, buttonRect.y + 10, 20, BLACK);
         EndDrawing();
     }
     UnloadMusicStream(Main_music);

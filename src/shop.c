@@ -108,11 +108,11 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeWallRect))
             {
-                if (*money >= 300)
+                if (*money >= 300 && *towerCount <= MAX_SHOOTERS)
                 {
                     *money -= 300;
                     *wallHP += 2000;
-                    AddTower(towers, towerCount, (Vector3){*towerCount*2-34 + ((*towerCount*2-34 >= -15)? 16: 0),  6.5f, 16.0f });
+                    AddTower(towers, towerCount, (Vector3){*towerCount * 2 + ((*towerCount%2 == 0)? -34.0: 1.5),  6.5f, 16.0f });
                     
                     if (*wallHP > maxWallHP) *wallHP = maxWallHP;
                 }
@@ -199,7 +199,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, fixWallRect))
             {
-                if (*money >= 100)
+                if (*money >= 100 && wall.health < 2000)
                 {
                     *money -= 100;
                     wall.health += 500;
