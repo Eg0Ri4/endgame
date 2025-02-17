@@ -22,7 +22,7 @@ void InitNPC(NPC *npc, Vector3 spawnPos) {
     npc->state = MOVING;
     npc->disappearTimer = 45.0f;
     npc->hp = 100;
-    npc->damage = 1000;
+    npc->damage = 10;
     npc->attackTimer = NPC_ATTACK_INTERVAL;
     npc->frameCounter = 0.0f;
     npc->currentFrame = 0;

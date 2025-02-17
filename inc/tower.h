@@ -2,8 +2,8 @@
 #define TOWER_H
 
 #include "includs.h"  // Include the full NPC definition here
-#define FIRERATE 0.5f
-#define MAX_SHOOTERS 16
+#define FIRERATE 0.6f
+#define MAX_SHOOTERS 12
 #define MAX_ARROWS 100 
 
 typedef struct {

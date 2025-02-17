@@ -17,7 +17,7 @@ typedef struct {
 
 #define MAX_NPC 1000
 #define NPC_count 60
-#define NPC_ATTACK_INTERVAL 1.0f
+#define NPC_ATTACK_INTERVAL 1.5f
 
 extern NPC npcs[MAX_NPC];  // 👈 Declare the array as extern
 extern int npcCount;       // 👈 Declare the counter as extern

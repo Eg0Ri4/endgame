@@ -50,7 +50,7 @@ void LaunchArrow(Tower* tower, Arrow* arrows, NPC* npcs, int npcCount) {
         arrow->position = tower->position;
         Vector3 direction = Vector3Normalize(Vector3Subtract(nearestNPC->position, tower->position));
         arrow->velocity = Vector3Scale(direction, 150.0f);  // Adjust speed
-        arrow->damage = 40;
+        arrow->damage = 50;
         arrow->isActive = true;
     }
 }

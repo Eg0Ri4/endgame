@@ -88,7 +88,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         DrawRectangleRec(upgradeWallRect, buttonBgColor);
 
         const char* upgradeWallLabel = "Add Defender";
-        static int cost = 300;
+        static int cost = 200;
         const char* upgradeWallPrice = TextFormat("-%i$", cost);
         
 
@@ -113,7 +113,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
                 if (*money >= (int)cost && *towerCount < MAX_SHOOTERS)
                 {
                     *money -= (int)cost;
-                    cost *= 1.3;
+                    cost *= 1.25;
                     *wallHP += 2000;
                     AddTower(towers, towerCount, (Vector3){*towerCount * 2 + ((*towerCount%2 == 0)? -34.0: 1.5),  6.5f, 16.0f });
                     
@@ -142,7 +142,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
         DrawRectangleRec(upgradeDefRect, buttonBgColor);
 
         const char* upgradeDefLabel = "Upgrade";
-        static int defcost = 2000;
+        static int defcost = 1000;
         const char* upgradeDefPrice = TextFormat("-%i$", defcost);
         
         Vector2 labelPos = {
@@ -163,7 +163,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
             Vector2 mPos = GetMousePosition();
             if (CheckCollisionPointRec(mPos, upgradeDefRect))
             {
-                if ((*money >= defcost && *defenderLevel < MAX_SHOOTERS) && *defenderLevel < maxDefenderLevel)
+                if (*money >= defcost && *defenderLevel < maxDefenderLevel)
                 {
                     *money -= defcost;
                     defcost = defcost*2;
@@ -208,7 +208,7 @@ void RenderShopSidebar(Font interFont, int screenWidth, int screenHeight,
                 if (*money >= wallcost && wall.health < 2000)
                 {
                     *money -= wallcost;
-                    wallcost *= 1.7;
+                    wallcost *= 1.65;
                     wall.health += 500;
                     wallDestroyed = 1;
                     if (wall.health > maxWallHP) wall.health = maxWallHP;
